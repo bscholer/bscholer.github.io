@@ -8,7 +8,6 @@ function submit() {
     var val = document.getElementById('password').value;
     console.log(val);
     for (var i = 0; i < users.data.length; i++) {
-        console.log(users.data[i][0] + ", " + users.data[i][1]);
         if (val === users.data[i][1]) {
 
             window.open("house_pages/" + users.data[i][0] + ".html");
