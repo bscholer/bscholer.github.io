@@ -1,0 +1,150 @@
+/*:target:before {*/
+/*content: "";*/
+/*display: block;*/
+/*height: 50px; !* fixed header height*!*/
+/*margin: 50px 0 0; !* negative fixed header height *!*/
+/*}*/
+
+/* Style for our header texts
+* --------------------------------------- */
+h1 {
+    font-size: 5em;
+    font-family: roboto, serif;
+    color: #fff;
+    margin: 0;
+    padding: 0;
+}
+
+/* Centered texts in each section
+* --------------------------------------- */
+.section {
+    text-align: center;
+}
+
+/* Backgrounds will cover all the section
+* --------------------------------------- */
+.section {
+    background-size: cover;
+}
+
+.slide {
+    background-size: cover;
+}
+
+/* Top Menu
+* --------------------------------------- */
+.container {
+    position: fixed;
+    margin-left: 25%;
+    width: 50%;
+    /*margin-top: 8px;*/
+    /*top: 0;*/
+    z-index: 9;
+}
+
+ul li {
+    display: inline;
+    text-align: center;
+}
+
+a {
+    display: inline-block;
+    width: calc(20% - 4px);
+    margin: 0;
+    text-decoration: none;
+    color: #333;
+}
+
+#menu-about:hover ~ hr {
+    margin-left: 20%;
+}
+
+#menu-league-info:hover ~ hr {
+    margin-left: 40%;
+}
+
+#menu-register:hover ~ hr {
+    margin-left: 60%;
+}
+
+#menu-tournaments:hover ~ hr {
+    margin-left: 80%;
+}
+
+hr {
+    height: .25rem;
+    width: 20%;
+    margin-left: 0;
+    margin-top: 6px;
+    background: tomato;
+    border: none;
+    transition: .3s ease-in-out;
+}
+
+#slide1 {
+    background-image: url(../imgs/volleyball1.jpg);
+}
+
+#slide2 {
+    background-image: url(../imgs/volleyball2.jpg);
+}
+
+/* Home
+* --------------------------------------- */
+#home {
+}
+
+#home h1 {
+    position: relative;
+}
+
+/* About
+* --------------------------------------- */
+#about {
+    background-color: #4ABDAC;
+}
+
+#about h1 {
+    position: relative;
+    color: #000;
+}
+
+/* League Info
+* --------------------------------------- */
+#league-info {
+    background-color: #F7B733;
+}
+
+/* Register
+* --------------------------------------- */
+#register-parent {
+    width: 600px;
+    display: inline-block;
+    text-align: left;
+}
+
+#register {
+    background-color: #DFDCE3;
+}
+
+#register-submit {
+    margin-top: 16px;
+}
+
+/* Tournaments
+* --------------------------------------- */
+#tournaments {
+    background-color: #CAEBF2;
+}
+
+#tournaments h1 {
+    color: #000;
+}
+
+/* Parent
+* --------------------------------------- */
+.section-parent {
+    position: relative;
+    height: 80%;
+    top: calc((100% - 80%) / 2);
+}

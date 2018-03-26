@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="generator" content="HTML Tidy for HTML5 for Linux version 5.1.25"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Volleyball of the Midwest</title>
+    <meta name="author" content="Alvaro Trigo Lopez"/>
+    <meta name="description" content="fullPage full-screen backgrounds."/>
+    <meta name="keywords" content="fullpage,jquery,demo,screen,fullscreen,backgrounds,full-screen"/>
+    <meta name="Resource-type" content="Document"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css?family=Quicksand" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
+    <link rel="stylesheet" type="text/css" href="css/jquery.fullPage.css"/>
+    <link rel="stylesheet" type="text/css" href="css/index.css"/>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcomponentsjs/1.1.1/webcomponents-lite.js"></script>
+    <script type="text/javascript" src="js/jquery.fullPage.js"></script>
+    <script type="text/javascript" src="jQuery-Mask-Plugin/dist/jquery.mask.min.js"></script>
+    <script type="text/javascript" src="bootstrap-validator/dist/validator.min.js"></script>
+    <script type="text/javascript" src="https://checkout.stripe.com/checkout.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#fullpage').fullpage({
+                verticalCentered: false
+            });
+            $('.phone_us').mask('(000) 000-0000');
+            $('.zip').mask('00000');
+        });
+    </script>
+</head>
+<body>
+<!--TODO make this menu work-->
+<!--<div id="header" class="container">-->
+    <!--<ul>-->
+        <!--<li id="menu-home"><a class="link" href="?#home">Home</a></li>-->
+        <!--<li id="menu-about"><a class="link" href="?#about">About</a></li>-->
+        <!--<li id="menu-league-info"><a class="link" href="?#league-info">League Info</a></li>-->
+        <!--<li id="menu-register"><a class="link" href="?#register">Register</a></li>-->
+        <!--<li id="menu-tournaments"><a class="link" href="?#tournaments">Tournaments</a></li>-->
+        <!--<hr/>-->
+    <!--</ul>-->
+<!--</div>-->
+<div id="fullpage">
+
+    <div class="section anchor" id="home">
+        <div class="slide" id="slide1">
+            <h1>Volleyball of the Midwest</h1>
+        </div>
+        <div class="slide" id="slide2">
+            <h1>More gradient fun</h1>
+        </div>
+    </div>
+
+    <div class="section anchor" id="about">
+        <div id="about-parent" class="section-parent">
+            <h1>About</h1>
+            <h2>We do cool stuff with volleyball</h2>
+            <h3>Contact Cody Kiess</h3>
+        </div>
+    </div>
+
+    <div class="section anchor" id="league-info">
+        <div id="league-info-parent" class="section-parent">
+            <h1>League Information</h1>
+        </div>
+    </div>
+
+    <div class="section anchor" id="register">
+        <div id="register-parent" class="section-parent">
+            <h2 style="color: black; text-align: center; margin-bottom: 16px;">Register</h2>
+            <form>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="register-firstname">First Name</label>
+                        <input class="form-control" id="register-firstname" placeholder="John" required/>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="register-lastname">Last Name</label>
+                        <input class="form-control" id="register-lastname" placeholder="Smith" required/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="register-email">Email Address</label>
+                    <input style="margin-bottom: 8px;" type="email" class="form-control" id="register-email"
+                           placeholder="Enter email" required/>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">Phone Number</label>
+                    <input id="register-phone" class="form-control phone_us" placeholder="Phone Number" required/>
+                </div>
+                <div class="form-group">
+                    <label for="register-address">Address</label>
+                    <input id="register-address" class="form-control" placeholder="Address" required/>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="register-city">City</label>
+                        <input id="register-city" class="form-control" placeholder="City" required/>
+                    </div>
+                    <div class="form-group col-md-4">
+                        <label for="register-state">State</label>
+                        <input id="register-state" class="form-control" placeholder="State" required/>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="register-zip">Zip</label>
+                        <input id="register-zip" class="form-control zip" placeholder="Zip" required/>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="register-leaguenight">League Night</label>
+                        <select id="register-leaguenight" class="form-control">
+                            <option>Choose...</option>
+                            <option>Monday</option>
+                            <option>Tuesday</option>
+                            <option>Wednesday</option>
+                            <option>Thursday</option>
+                            <option>Friday</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="register-leaguedivision">League Division</label>
+                        <select id="register-leaguedivision" class="form-control">
+                            <option>Choose...</option>
+                            <option>I'm</option>
+                            <option>Not</option>
+                            <option>Sure</option>
+                            <option>What</option>
+                            <option>Goes</option>
+                            <option>Here</option>
+                        </select>
+                    </div>
+                </div>
+                <button style="" id="register-submit" type="submit" class="btn btn-primary">Submit
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="section" id="tournaments">
+        <h1>One Image = One thousand words</h1>
+    </div>
+    <!-- Return to Top -->
+    <a href="javascript:" id="return-to-top"><i class="icon-chevron-up"></i></a>
+</div>
+<script type="text/javascript">
+    var handler = StripeCheckout.configure({
+        key: 'pk_test_6pRNASCoBOKtIshFeQd4XMUh',
+        image: 'logo.png',
+        locale: 'auto',
+        token: function (token) {
+            // You can access the token ID with `token.id`.
+            // Get the token ID to your server-side code for use.
+        }
+    });
+
+    document.getElementById('register-submit').addEventListener('click', function (e) {
+        // Open Checkout with further options:
+        handler.open({
+            name: 'Stripe.com',
+            description: '2 widgets',
+            zipCode: true,
+            amount: 2000
+        });
+        e.preventDefault();
+    });
+
+    // Close Checkout on page navigation:
+    window.addEventListener('popstate', function () {
+        handler.close();
+    });
+</script>
+</body>
+</html>
