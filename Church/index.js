@@ -29,6 +29,11 @@ function calculate() {
         else {
             stopOutput = stop[1] + " - " + hours + ":" + (minutes - stop[0]) + "<br/>";
         }
+        console.log(stopOutput);
+        // Check to see if we need a 0 in front of the minutes
+        if (stopOutput.substring(stopOutput.indexOf(":")).length === 1) {
+            stopOutput = stopOutput.substring(0, stopOutput.indexOf(":")) + "0" + stopOutput.substring(stopOutput.indexOf(":"));
+        }
         newStops += stopOutput;
     }
     console.log(newStops);
