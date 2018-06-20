@@ -1,0 +1,117 @@
+.container {
+    display: grid;
+    position: relative;
+    width: 95vw;
+    height: 95vh;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    border-radius: 7px;
+    box-shadow: 0 10px 15px 0 rgba(0, 0, 0, .25);
+
+    background: white;
+
+    grid-template-areas: "header header header" "nav article article" "nav article article";
+    grid-template-rows: 8% 1fr 70px;
+    grid-template-columns: 75px 1fr 15%;
+
+    overflow: hidden;
+}
+
+#mainContent {
+    position: relative;
+    padding: 1.2em;
+}
+
+#pageHeader {
+    grid-area: header;
+
+    background-image: url("../photos/head.jpeg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+#mainNav {
+    background: #262626;
+    grid-area: nav;
+}
+
+#mainContent {
+    background: #f6f8fa;
+    grid-area: article;
+
+    display: grid;
+    grid-template-areas: "lastWeek" "currentHeaders" "currentWeek" "nextHeaders" "nextWeek";
+    grid-template-rows: 2fr 1fr 7fr 1fr 2fr;
+    grid-template-columns: 1fr;
+    grid-row-gap: 10px;
+}
+
+/* TODO make responsive layouts for all screen sizes. */
+
+@media all and (max-width: 1024px) {
+    #mainContent {
+        display: grid;
+        grid-template-areas: "currentHeaders" "currentWeek";
+        grid-template-rows: 1fr 24fr;
+        grid-template-columns: 1fr;
+        grid-row-gap: 10px;
+    }
+}
+
+#prevWeek, #nextWeek, #currWeek, #nextHead, #currHead {
+    padding: 0 4em;
+}
+
+#nxtWeek, #currWeek, #prvWeek {
+    overflow-x: scroll;
+    overflow-y: scroll;
+    white-space: nowrap;
+}
+
+#prvWeek {
+    grid-area: lastWeek;
+}
+
+#nxtWeek {
+    grid-area: nextWeek;
+}
+
+#currWeek {
+    grid-area: currentWeek;
+}
+
+#currWeek::-webkit-scrollbar, #nxtWeek::-webkit-scrollbar, #prvWeek::-webkit-scrollbar {
+    display: none;
+}
+
+#nextHead {
+    grid-area: nextHeaders;
+}
+
+#currHead {
+    display: grid !important;
+    grid-template-areas: "weekYearInputs weekTitle totalTime";
+    grid-template-columns: 1fr 2fr 1fr;
+    grid-template-rows: 1fr;
+    grid-row-gap: 10px;
+    grid-area: currentHeaders;
+}
+
+#weekYearInputs {
+    grid-area: weekYearInputs;
+    bottom: 0;
+}
+
+#weekTitle {
+    grid-area: weekTitle;
+    bottom: 0;
+}
+
+#weeksTotal {
+    bottom: 0;
+    text-align: right;
+    grid-area: totalTime;
+}

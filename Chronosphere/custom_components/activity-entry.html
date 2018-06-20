@@ -1,0 +1,136 @@
+<dom-module id="activity-entry">
+
+    <link rel="import" href="../bower_components/paper-autocomplete/paper-autocomplete.html">
+    <link rel="import" href="../bower_components/paper-time-input/paper-time-input.html">
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <script src="../js/moment.js"></script>
+    <style>
+        .inputTwoThirds {
+            display: inline-block;
+            float: left;
+            box-sizing: border-box;
+            width: 66%;
+        }
+
+        .inputOneThird {
+            display: inline-block;
+            float: right;
+            box-sizing: border-box;
+            width: 30%;
+        }
+    </style>
+    <template>
+        <paper-autocomplete class="activityInput activityAutocomplete inputTwoThirds" id="activityNameInput"
+                            text="{{activityName}}"
+                            label="Activity"
+                            disabled="[[disabled]]"
+                            show-results-on-focus></paper-autocomplete>
+        <paper-time-input class="activityInput activityHours inputOneThird" format="24" id="timeSpentInput"
+                          hour="{{hoursSpent}}" min="{{minsSpent}}" auto-validate="false"
+                          label="Hours"
+                          disabled="[[disabled]]"
+                          ></paper-time-input>
+    </template>
+    <script>
+        Polymer({
+            is: "activity-entry",
+
+            //For the current day, we only get one temp, which is passed into the hi AND lo. When both are the same, we format it differently.
+            properties: {
+                activityName: String,
+                //this will be used when
+                databaseLocation: String,
+                hoursSpent: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                },
+                minsSpent: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                },
+                state: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                    value: 'empty'
+                },
+                disabled: {
+                    type: Boolean,
+                    notify: true,
+                    value: false
+                }
+            },
+
+            listeners: {
+                'activityNameInput.input': '_updateState',
+                'activityNameInput.change': '_updateState',
+                'timeSpentInput.input': '_updateState',
+                'timeSpentInput.change': '_updateState',
+                'disabled-changed': '_updateState',
+                'activityNameInput.clear': '_clearEntry'
+            },
+
+            ready: function () {
+                var activities = ['Support', 'New Features', 'Multi-Brand', 'Other'];
+                this.$.activityNameInput.source = activities;
+                this._updateState();
+                // this.$.querySelector("#activityNameInput").addEventListener('input', this._updateState());
+                // this.$.timeSpentInput.addEventListener('input', this._updateState());
+            },
+
+            attributeChanged: function() {
+                this._updateState();
+            },
+
+            _updateState: function () {
+                var state;
+                // The unfiltered childNodes
+                var childNodes = this.childNodes;
+                // The input elements
+                var inputs = [];
+                // The values of the inputs
+                var inputValues = [];
+                // Filter the childNodes to remove <text> elements.
+                childNodes.forEach(function (element) {
+                    var elementClasses = element.classList;
+                    if (elementClasses !== undefined && elementClasses[0] === "activityInput") {
+                        inputs.push(element);
+                    }
+                });
+
+                inputValues[0] = inputs[0].text;
+                inputValues[1] = inputs[1].value;
+
+                if(inputValues[0] === "" || inputs[0].disabled){
+                    inputs[1].disabled = true;
+                } else if(inputValues[0] !== ""){
+                    inputs[1].disabled = false;
+                }
+
+                if (inputValues[0] !== "" && inputValues[1] !== undefined) {
+                    state = "filled";
+                } else if (inputValues[0] !== "" || inputValues[1] !== undefined) {
+                    state = "partial";
+                } else {
+                    state = "empty";
+                }
+                this.set('state', state);
+                this.fire('state-changed');
+                this.fire('hours-spent-changed');
+                this.fire('mins-spent-changed');
+
+            },
+
+            _clearEntry: function(){
+                this.$.timeSpentInput.min = "";
+                this.$.timeSpentInput.hour = "";
+                this.set('state', "empty");
+                this.fire('state-changed');
+            }
+
+        });
+    </script>
+</dom-module>

@@ -1,0 +1,466 @@
+<dom-module id="project-card">
+    <link rel="import" href="../bower_components/paper-card/paper-card.html">
+    <link rel="import" href="../bower_components/paper-input/paper-input.html">
+    <link rel="import" href="../bower_components/paper-button/paper-button.html">
+    <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+    <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+    <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+    <link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+    <link rel="import" href="../bower_components/iron-icon/iron-icon.html">
+    <link rel="import" href="../bower_components/iron-icons/image-icons.html">
+    <link rel="import" href="../bower_components/paper-fab/paper-fab.html">
+    <link rel="import" href="./project-edit-card.html">
+    <link rel="import" href="./project-entry.html">
+    <style>
+        :root {
+            --over-view-width: 275px;
+        }
+
+        .card-container {
+            margin: 0 16px 0 0;
+            height: 95%;
+            background-color: #ffffff;
+            width: var(--over-view-width);
+            overflow: hidden;
+            display: inline-block;
+            transition: .45s cubic-bezier(.2, 0, 0, 1.2)
+            /*transition: all 2.5s ease-out;*/
+        }
+
+
+        #cardContent {
+            height: 100%;
+
+            display: flex;
+        }
+
+        #projectOverview {
+            box-sizing: border-box;
+            min-width: var(--over-view-width);
+            max-width: var(--over-view-width);
+
+            padding: 0 16px 16px;
+            display: grid;
+
+            grid-template-areas: "ttl ttl icn" "day day tmp" "bdy bdy bdy" "no no tot" "act act act";
+            grid-template-rows: 4em 2fr 6fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        #dayOfWeek {
+            grid-area: ttl;
+        }
+
+        #weatherImg {
+            transform: translate(16px, -10%) scale(.6);
+            grid-area: icn;
+        }
+
+        #fullDate {
+            grid-area: day;
+        }
+
+        #temp {
+            grid-area: tmp;
+            transform: translate(16px);
+        }
+
+        #totalTime {
+            grid-area: tot;
+            text-align: right;
+        }
+
+        #projectEntries {
+            grid-area: bdy;
+        }
+
+        #act {
+            grid-area: act;
+        }
+
+        #act paper-icon-button {
+            display: inline-block;
+            transform: translateY(50%);
+            float: right;
+
+            transition: all .5s ease-out;
+        }
+
+        #act paper-icon-button[cardState="open"] {
+            transform: translateY(50%) rotate(180deg);
+        }
+
+        paper-fab.green {
+            --paper-fab-background: #007b3d;
+            --paper-fab-keyboard-focus-background: #33ae70;
+        }
+
+        .shadow-4dp {
+            @apply --shadow-elevation-4dp;
+        }
+
+        .totalTime {
+            transform: translate(0, .25em);
+        }
+    </style>
+    <script src="../js/moment.js"></script>
+    <template>
+        <div id="cardContainer" class="card-container shadow-4dp">
+            <div id="cardContent">
+                <div id="projectOverview">
+                    <h1 id="dayOfWeek"
+                        style="font-weight: 100; display: block;"> [[day]] </h1>
+                    <h3 id="fullDate" style="font-weight: 500; margin-top: 8px; display: block;"></h3>
+
+                    <img id="weatherImg" style="margin: auto;">
+                    <h3 id="temp"
+                        style="font-weight: 400; margin: 8px auto 0; float: right; vertical-align: bottom;"></h3>
+
+                    <div id="projectEntries" style="max-height: 100%; overflow: auto;" class="new-field">
+                        <div style="font-weight: 600; font-size: .80em" class="entriesHeader">
+                            <div class="projectName" style="display: inline-block;">Project</div>
+                            <div class="projectHours" style="display: inline-block; float: right; padding-right: 8px">
+                                Time
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="totalTime" class="totalTime"><b>Total: [[totalHours]]:[[totalMins]]</b></div>
+
+                    <div id="act">
+                        <paper-fab style="display: inline-block;" id="addNewProject" class="green"
+                                   icon="icons:add"></paper-fab>
+                        <paper-icon-button id="toggleCard" icon="icons:chevron-right"></paper-icon-button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+        </script>
+    </template>
+
+    <script>
+        // Register custom element definition using standard platform API
+        Polymer({
+            is: "project-card",
+
+            //For the current day, we only get one temp, which is passed into the hi AND lo. When both are the same, we format it differently.
+            properties: {
+                date: String,
+                weatherIcon: String,
+                weatherHi: Number,
+                weatherLo: Number,
+                state: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                    value: "open"
+                },
+                totalMins: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                    value: "00"
+                },
+                totalHours: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                    value: "0"
+                },
+                projectData: String,
+                numProjects: Number
+            },
+
+            listeners: {
+                'card-updated': '_updateState',
+                'edit-card-deleted': '_editCardDeleted',
+                // 'state-changed': '_remodelCard'
+            },
+
+            ready: function () {
+                var projectCard = this;
+                /*Event Initialization*/
+                this.$.addNewProject.addEventListener("click", this._appendCard);
+                this.$.addNewProject.addEventListener("click", this._updateState);
+
+                this.$.toggleCard.addEventListener("click", this._updateState);
+            },
+
+            _appendCard: function () {
+                var localDom = this;
+                while (localDom.tagName !== "PROJECT-CARD") {
+                    localDom = localDom.parentElement;
+                }
+
+                //setting up appendees
+                var prj = document.createElement("project-edit-card");
+                var entry = document.createElement("project-entry");
+
+                prj.addEventListener("project-name-changed", function (e) {
+                    entry.projectName = e.detail.value;
+                });
+                prj.addEventListener("total-project-mins-changed", function (e) {
+                    if ((e.detail.value + "").length === 1) {
+                        e.detail.value = "0" + e.detail.value;
+                    }
+                    entry.projectMins = e.detail.value;
+                    localDom._updateTotalTime();
+                });
+                prj.addEventListener("total-project-hours-changed", function (e) {
+                    entry.projectHours = e.detail.value;
+                    localDom._updateTotalTime();
+                });
+                prj.addEventListener("remove-card-trigger-changed", function (e) {
+                    entry.parentElement.removeChild(entry);
+                });
+
+                //finding appender
+                var projectCard = this.parentElement.parentElement.parentElement;
+                var projectEntries = projectCard.querySelector("#projectEntries");
+
+                //finding appenders
+                var crd = this.parentElement.parentElement.parentElement;
+                var projectEntries = crd.querySelector("#projectEntries");
+
+                //appending...
+                projectCard.appendChild(prj);
+                projectEntries.appendChild(entry);
+                localDom._updateTotalTime();
+
+                localDom._remodelCard();
+            },
+
+            _updateState: function (e) {
+                var localDom = this;
+
+                while (localDom.tagName !== "PROJECT-CARD") {
+                    localDom = localDom.parentElement;
+                }
+
+                var projectEditCards = localDom.querySelectorAll("project-edit-card");
+                var newState = "";
+
+                if (projectEditCards === undefined || projectEditCards.length <= 0) {
+                    newState = "empty";
+                } else {
+                    if(e !== undefined) {
+                        if (e.target.tagName === "PAPER-FAB" || e.target.parentElement.tagName === "PAPER-FAB") {
+                            newState = "open";
+                        } else {
+                            newState = ((localDom.state === "open") ? "closed" : "open");
+                        }
+                    } else {
+                        newState = ((localDom.state === "open") ? "closed" : "open");
+                    }
+                }
+
+                localDom.state = newState;
+                localDom._remodelCard();
+            },
+
+            _editCardDeleted: function (e) {
+                var localDom = this;
+
+                while (localDom.tagName !== "PROJECT-CARD") {
+                    localDom = localDom.parentElement;
+                }
+
+                var projectEditCards = localDom.querySelectorAll("project-edit-card");
+                var newState = "";
+                //1 is used on account of the event is fired before the card is actually fired
+                //TODO Be able to fire the event once the card is deleted and use _updateState()
+                if (projectEditCards === undefined || projectEditCards.length <= 1) {
+                    newState = "empty";
+                } else {
+                    if(e !== undefined) {
+                        if (e.target.tagName === "PAPER-FAB" || e.target.parentElement.tagName === "PAPER-FAB") {
+                            newState = "open";
+                        } else {
+                            newState = ((localDom.state === "open") ? "closed" : "open");
+                        }
+                    } else {
+                        newState = ((localDom.state === "open") ? "closed" : "open");
+                    }
+                }
+
+                localDom.state = newState;
+                localDom.$.toggleCard.disabled = false;
+                localDom.$.toggleCard.setAttribute("cardState", localDom.state);
+
+                /*close card*/
+                var overviewWidth = localDom.$.projectOverview.clientWidth;
+                var cardContainer = localDom.$.cardContainer;
+
+                cardContainer.style["width"] = overviewWidth + "px";
+
+                console.log(localDom.state);
+
+                if (localDom.state === "open") {
+                    var contentWidth = localDom.$.cardContent.scrollWidth;
+                    var cardContainer = localDom.$.cardContainer;
+                    //275px is a placeholder for the width of the project-edit-card
+                    //since the event fires before the edit-card is deleted, the width is kept static rather than
+                    //the width minus one edit-card and its padding
+                    //TODO : Learn how to fire this function after the edit-card has been removed and connect it with _updateState() instead
+                    cardContainer.style["width"] = (contentWidth-(275+32)) + "px";
+                } else if (localDom.state === "closed") {
+
+                } else {
+                    localDom.$.toggleCard.disabled = true;
+                }
+
+            },
+
+            _remodelCard: function () {
+                this.$.toggleCard.disabled = false;
+                this.$.toggleCard.setAttribute("cardState", this.state);
+
+                /*close card*/
+                var overviewWidth = this.$.projectOverview.clientWidth;
+                var cardContainer = this.$.cardContainer;
+
+                cardContainer.style["width"] = overviewWidth + "px";
+
+                if (this.state === "open") {
+                    var contentWidth = this.$.cardContent.scrollWidth;
+                    var cardContainer = this.$.cardContainer;
+
+                    cardContainer.style["width"] = contentWidth + "px";
+                } else if (this.state === "closed") {
+                    
+                } else {
+                    this.$.toggleCard.disabled = true;
+                }
+            },
+
+            attached: function () {
+                var localDom = this;
+                while (localDom.tagName !== "PROJECT-CARD") {
+                    localDom = localDom.parentElement;
+                }
+
+                var projectData = JSON.parse(this.getAttribute("projectData"));
+
+
+                if (projectData !== null) {
+                    //Grouping similar projectNumbers together
+                    var groupBy = function (xs, key) {
+                        return xs.reduce(function (rv, x) {
+                            (rv[x[key]] = rv[x[key]] || []).push(x);
+                            return rv;
+                        }, {});
+                    };
+                    var pDGroupedByNumber = groupBy(projectData, 'projectNumber');
+
+                    var project;
+                    for (var i = 0; i < Object.keys(pDGroupedByNumber).length; i++) {
+                        (function () {
+                            project = pDGroupedByNumber[Object.keys(pDGroupedByNumber)[i]];
+
+                            //setting up appendees
+                            var projectEditCard = document.createElement("project-edit-card");
+                            var entry = document.createElement("project-entry");
+
+                            // TODO Maybe change this to projectCode??
+
+                            projectEditCard.projectName = project[0]["projectNumber"];
+                            entry.projectName = project[0]["projectNumber"];
+
+                            //Creating JSON for activityData
+                            //[ { activityName: "", activityTime: "" }, ... ]
+                            var activityData = [];
+                            project.forEach(function (activity) {
+                                activityData.push({ "activityName": activity.activityId, "activityTime": activity.hours });
+                            });
+
+                            projectEditCard.activityData = JSON.stringify(activityData);
+                            // projectEditCard.corpCode = project["corpCode"];
+
+                            projectEditCard.addEventListener("project-name-changed", function (e) {
+                                entry.projectName = e.detail.value;
+                            });
+                            projectEditCard.addEventListener("total-project-mins-changed", function (e) {
+                                if ((e.detail.value + "").length === 1) {
+                                    e.detail.value = "0" + e.detail.value;
+                                }
+                                entry.projectMins = e.detail.value;
+                                localDom._updateTotalTime();
+                            });
+                            projectEditCard.addEventListener("total-project-hours-changed", function (e) {
+                                entry.projectHours = e.detail.value;
+                                localDom._updateTotalTime();
+                            });
+                            projectEditCard.addEventListener("remove-card-trigger-changed", function (e) {
+                                entry.parentElement.removeChild(entry);
+                            });
+
+                            projectEditCard.style.borderLeft = "1px solid rgba(7,7,7,.25)";
+
+                            //finding appenders
+                            var projectEntries = localDom.querySelector("#projectEntries");
+                            //appending...
+                            localDom.querySelector("#cardContent").appendChild(projectEditCard);
+                            projectEntries.appendChild(entry);
+                            localDom._updateTotalTime();
+                        })();
+                    }
+                }
+
+                //Final state for all cards will be closed or empty
+                this._updateState();
+            },
+
+
+            // this. is the project-card
+            _updateTotalTime: function () {
+                var totHours = 0, totMins = 0;
+                var projectEntries = this.$.projectEntries;
+                var entries = projectEntries.querySelectorAll("project-entry");
+                entries.forEach(function (entry) {
+                        totHours += parseInt(entry.projectHours);
+                        totMins += parseInt(entry.projectMins);
+                });
+
+                var totDur = moment.duration(totMins, 'minutes');
+                totHours += Math.floor(totDur.asHours());
+                totMins = Math.floor(totDur.asMinutes()) % 60;
+                this.totalHours = totHours + "";
+                this.totalMins = totMins + "";
+                if ((this.totalMins).length === 1) {
+                    this.totalMins = "0" + this.totalMins;
+                }
+            },
+
+            attributeChanged: function () {
+                /*Populating Card*/
+                var d = new Date(this.date);
+                var n = d.getDay();
+
+                var monthNames = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                var dateString = monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+
+                this.$.dayOfWeek.innerHTML = days[d.getDay()] + "&nbsp;&nbsp;";
+
+                this.$.fullDate.innerHTML = dateString;
+
+                if (this.getAttribute("weatherIcon") !== null) {
+                    this.$.weatherImg.src = this.getAttribute("weatherIcon"); //this.weatherIcon;
+                }
+                if (this.getAttribute("weatherLo") !== null && this.getAttribute("weatherHi") !== null) {
+                    if (this.getAttribute("weatherLo") === this.getAttribute("weatherHi")) {
+                        this.$.temp.innerHTML = this.getAttribute("weatherLo") + "&nbsp&deg;F";
+                    } else {
+                        this.$.temp.innerHTML = this.getAttribute("weatherLo") + "&nbsp|&nbsp" +
+                            this.getAttribute("weatherHi") + "&nbsp&deg;F";
+                    }
+                }
+
+            },
+
+        })
+    </script>
+</dom-module>

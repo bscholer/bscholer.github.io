@@ -1,0 +1,129 @@
+<dom-module id="skeleton-card">
+    <style>
+        :root {
+            --over-view-width: 275px;
+        }
+
+        .card-container {
+            margin: 0 16px 0 0;
+            height: 95%;
+            background-color: #ffffff;
+            max-width: var(--over-view-width);
+
+            overflow: hidden;
+
+            display: inline-block;
+            /*transition: all 2.5s cubic-bezier(0,1.49,1,-0.5);*/
+            transition: all 2.5s ease-out;
+        }
+
+        .card-container[focused="true"] {
+            max-width: 1000px;
+        }
+
+        #act paper-icon-button {
+            display: inline-block;
+            transform: translateY(50%);
+            float: right;
+
+            transition: all .5s ease-out;
+        }
+
+        #act paper-icon-button[cardFocused="true"] {
+            transform: translateY(50%) rotate(180deg);
+        }
+
+        paper-fab.green {
+            --paper-fab-background: #007b3d;
+            --paper-fab-keyboard-focus-background: #33ae70;
+        }
+
+        .shadow-4dp {
+            @apply --shadow-elevation-4dp;
+        }
+
+        .totalTime {
+            transform: translate(0, .25em);
+        }
+
+        .container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .avatar {
+            float: left;
+            width: 52px;
+            height: 52px;
+            background-color: #ccc;
+            border-radius: 25%;
+            margin: 8px;
+            background-image: linear-gradient(90deg, #ddd 0px, #e8e8e8 40px, #ddd 80px);
+            background-size: 600px;
+            animation: shine-avatar 1.6s infinite linear;
+        }
+
+        .line {
+            float: left;
+            width: 140px;
+            height: 16px;
+            margin-top: 12px;
+            border-radius: 7px;
+            background-image: linear-gradient(90deg, #ddd 0px, #e8e8e8 40px, #ddd 80px);
+            background-size: 600px;
+            animation: shine-lines 1.6s infinite linear;
+        }
+
+        .avatar + .line {
+            margin-top: 11px;
+            width: 100px;
+        }
+
+        .line ~ .line {
+            background-color: #ddd;
+        }
+
+        @keyframes shine-lines {
+            0% {
+                background-position: -100px;
+            }
+            40%, 100% {
+                background-position: 140px;
+            }
+        }
+
+        @keyframes shine-avatar {
+            0% {
+                background-position: -32px;
+            }
+            40%, 100% {
+                background-position: 208px;
+            }
+        }
+    </style>
+    <script src="../js/moment.js"></script>
+    <template>
+        <div id="cardContainer" class="card-container shadow-4dp">
+            <div class="container">
+                <div class="post">
+                    <div style="display: inline-block" class="line"></div>
+                    <div style="display: inline-block" class="avatar"></div>
+                    <div class="line"></div>
+                </div>
+            </div>
+        </div>
+        <script>
+        </script>
+    </template>
+
+    <script>
+        // Register custom element definition using standard platform API
+        Polymer({
+            is: "skeleton-card",
+        })
+    </script>
+
+</dom-module>

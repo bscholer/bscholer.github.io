@@ -1,0 +1,23 @@
+<dom-module id="project-entry">
+
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../js/moment.js"></script>
+    <template>
+        <div class="appender">
+            <div class="projectName" style="display: inline-block;">[[projectName]]</div>
+            <div class="projectHours" style="display: inline-block; float: right; padding-right: 8px">[[projectHours]]:[[projectMins]]</div>
+        </div>
+    </template>
+    <script>
+        Polymer({
+            is: "project-entry",
+
+            //For the current day, we only get one temp, which is passed into the hi AND lo. When both are the same, we format it differently.
+            properties: {
+                projectName: String,
+                projectMins: String,
+                projectHours: String,
+            }
+        });
+    </script>
+</dom-module>

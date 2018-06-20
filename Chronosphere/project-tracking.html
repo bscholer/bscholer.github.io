@@ -1,0 +1,254 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <!-- 2. Use an HTML Import to bring in some elements. -->
+    <link rel="import" href="bower_components/polymer/polymer-micro.html">
+    <link rel="import" href="bower_components/paper-card/paper-card.html">
+
+    <link rel="import" href="bower_components/paper-time-input/paper-time-input.html">
+    <link rel="import" href="bower_components/paper-time-picker/paper-time-picker.html">
+    <link rel="import" href="bower_components/paper-time-picker/paper-time-picker-dialog-style.html">
+
+    <!-- Custom elements -->
+    <link rel="import" href="custom_components/week-cards.html">
+
+    <!-- js -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="js/moment-duration-format.js"></script>
+
+    <!-- styling sheets -->
+    <link rel="stylesheet" href="css/basicStyle.css">
+    <link rel="stylesheet" href="css/frame.css">
+    <link rel="stylesheet" href="./css/animations.css">
+
+    <title>Project Tracking - Chronosphere</title>
+    <style>
+        #currWeek #slideLeft, #currWeek #slideRight {
+            z-index: 1000;
+            display: block;
+            position: absolute;
+            opacity: .65;
+            left: 0;
+            top: 45%;
+            transform: translate(15%, -50%);
+        }
+
+        #currWeek #slideRight {
+            left: 100%;
+            transform: translate(-115%, -50%);
+        }
+
+        #currWeek > paper-fab.green {
+            background: #23bb50;
+        }
+
+        #currWeek > paper-fab.green:focus {
+            background: #52bb60;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <nav id="mainNav">
+    </nav>
+
+    <header id="pageHeader">
+    </header>
+
+    <div id="mainContent">
+        <div style="cursor: pointer;" id="prvWeek">
+            <!-- <week-cards id="prevWeek" class="curNextWeek" cardType="project"></week-cards> -->
+            <paper-card heading="Click Me!"></paper-card>
+        </div>
+
+        <h2 style="font-weight: 200;" id="currHead">
+            <div id="weekYearInputs" style="transform: translate(0, -40%);">
+                <span id="currWeekHead" style="display: inline-block;">Week </span>
+                <paper-input id="weekNumberInput" auto-validate pattern="\b([1-9]|[1-4][0-9]|5[0-2])\b"
+                             style="text-align: center; height: 1.5em; display: inline-block; transform: translate(0, -10px); width: 30px;"></paper-input>
+                <span style="display: inline-block;">,&nbspYear </span>
+                <paper-input id="yearInput" auto-validate pattern="\b(19[4-8][0-9]|199[0-9]|[2-9][0-9]{3})\b"
+                             style="text-align: center; height: 1.5em; display: inline-block; transform: translate(0, -10px); width: 60px;"></paper-input>
+            </div>
+            <span id="weekTitle" style="text-align: center;">This Week</span>
+            <span id="weeksTotal" style="float: right">Week's Total: 0:00</span>
+        </h2>
+
+        <div id="currWeek">
+            <paper-fab id="slideLeft" class="green"
+                       icon="icons:chevron-left"></paper-fab>
+            <paper-fab id="slideRight" class="green"
+                       icon="icons:chevron-right"></paper-fab>
+            <!--<week-cards id="currentWeek" class="curNextWeek" cardType="project"></week-cards>-->
+        </div>
+
+        <div id="nextHead">
+            <h2 style="width: 100%; text-align: center; font-weight: 200"><span id="nextWeekTitle">Next Week</span></h2>
+        </div>
+
+        <div style="cursor: pointer;" id="nxtWeek">
+            <!-- <week-cards id="nextWeek" class="curNextWeek" cardType="project"></week-cards> -->
+            <paper-card heading="Click Me, too!"></paper-card>
+        </div>
+    </div>
+</div>
+<!-- container end -->
+<script>
+    function getParameterByName(name, url) {
+        var parameterValue;
+
+        if (!url) url = window.location.href;
+
+        name = name.replace(/[\[\]]/g, "\\$&");
+
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+
+        //Default for weekNumber and year respectively
+        if (!results && name === "weekNumber") return moment().week();
+        else if (!results && name === "year") return moment().year();
+
+        parameterValue = decodeURIComponent(results[2].replace(/\+/g, " "));
+
+        return parameterValue;
+    }
+
+
+    //buttons initialization
+    var weekNumber = getParameterByName("weekNumber");
+    var year = getParameterByName("year");
+    var displayedDate = moment().week(weekNumber).year(year);
+    var difference = displayedDate.diff(moment(), 'days');
+    var weeksDifference = Math.ceil(difference / 7);
+    var humanized;
+    if (weeksDifference === 0) {
+        humanized = "This Week";
+    } else if (weeksDifference === 1) {
+        humanized = "Next Week"
+    } else if (weeksDifference === -1) {
+        humanized = "Previous Week"
+    } else if (weeksDifference < -1) {
+        humanized = Math.abs(weeksDifference) + " Weeks Ago"
+    } else if (weeksDifference > 1) {
+        humanized = Math.abs(weeksDifference) + " Weeks From Now"
+    }
+    console.log(humanized);
+    //setting up clickable areas for next week and current week
+    var previousWeekContainer = document.getElementById("prvWeek");
+    var NextWeekContainer = document.getElementById("nxtWeek");
+    // Set an event listener for the week number input.
+    document.getElementById("weekNumberInput").addEventListener('blur', function () {
+        // Change the week, if the input is valid, and the week isn't already displayed.
+        if (!this.invalid && this.value !== weekNumber) {
+            window.location = "https://localhost:44311/project-tracking.html?weekNumber=" +
+                this.value +
+                "&year=" + year;
+        }
+    });
+    document.getElementById("yearInput").addEventListener('blur', function () {
+        // Change the week, if the input is valid, and the week isn't already displayed.
+        if (!this.invalid && this.value !== year) {
+            window.location = "https://localhost:44311/project-tracking.html?weekNumber=" +
+                weekNumber +
+                "&year=" + this.value;
+        }
+    });
+    previousWeekContainer.addEventListener("click", function () {
+        window.location = "https://localhost:44311/project-tracking.html?weekNumber=" +
+            (parseInt(weekNumber) - 1) +
+            "&year=" + year;
+    });
+    NextWeekContainer.addEventListener("click", function () {
+        window.location = "https://localhost:44311/project-tracking.html?weekNumber=" +
+            (parseInt(weekNumber) + 1) +
+            "&year=" + year;
+    });
+
+    var currentWeek = document.createElement("week-cards");
+    var weekContainer = document.getElementById("currWeek");
+    var weekNumberInput = document.getElementById("weekNumberInput");
+    var yearInput = document.getElementById("yearInput");
+
+    $.ajax({
+        dataType: "json",
+        url: "https://localhost:44311/api/projecttracking?weekNumber=" +
+        getParameterByName("weekNumber") +
+        "&year=" + getParameterByName("year"),
+        success: function (projectData) {
+            currentWeek.setAttribute("id", "currentWeek");
+            currentWeek.setAttribute("class", "curNextWeek");
+            currentWeek.setAttribute("cardType", "project");
+            currentWeek.setAttribute("weekNumber", weekNumber);
+            currentWeek.setAttribute("year", year);
+            currentWeek.setAttribute("projectData", JSON.stringify(projectData));
+
+            weekNumberInput.value = weekNumber;
+            yearInput.value = year;
+
+            weekContainer.appendChild(currentWeek);
+            weekContainer.scrollBy({
+                left: 275,
+                behavior: 'smooth'
+            });
+
+            $("#slideLeft").on("click", function () {
+                weekContainer.scrollBy({
+                    left: -550,
+                    behavior: 'smooth'
+                });
+            });
+            $("#slideRight").on("click", function () {
+                weekContainer.scrollBy({
+                    left: 550,
+                    behavior: 'smooth'
+                });
+            });
+        },
+        error: function () {
+            console.log("AJAX Call to API didn't work.");
+            currentWeek.setAttribute("id", "currentWeek");
+            currentWeek.setAttribute("class", "curNextWeek");
+            currentWeek.setAttribute("cardType", "project");
+            currentWeek.setAttribute("weekNumber", weekNumber);
+            currentWeek.setAttribute("year", year);
+
+            weekNumberInput.value = weekNumber;
+            yearInput.value = year;
+
+            weekContainer.appendChild(currentWeek);
+            weekContainer.scrollBy({
+                left: 275,
+                behavior: 'smooth'
+            });
+
+            $("#slideLeft").on("click", function () {
+                weekContainer.scrollBy({
+                    left: -550,
+                    behavior: 'smooth'
+                });
+            });
+            $("#slideRight").on("click", function () {
+                weekContainer.scrollBy({
+                    left: 550,
+                    behavior: 'smooth'
+                });
+            });
+        }
+    });
+    currentWeek.addEventListener("week-time-changed", function () {
+        console.log(currentWeek.weekHours);
+        var totalDiv = document.getElementById("weeksTotal");
+        totalDiv.innerHTML = "Week's Total: " + currentWeek.weekHours + ":" + currentWeek.weekMins;
+    });
+
+</script>
+<script src="js/moment.js"></script>
+<!--<script src="js/findWeekStart.js"></script>-->
+<!--<script src="js/ajaxWeather.js"></script>-->
+</body>
+</html>

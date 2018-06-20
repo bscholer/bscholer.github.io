@@ -1,0 +1,81 @@
+﻿<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <!-- 2. Use an HTML Import to bring in some elements. -->
+    <link rel="import" href="bower_components/polymer/polymer.html">
+
+    <link rel="import" href="bower_components/paper-time-input/paper-time-input.html">
+    <link rel="import" href="bower_components/paper-time-picker/paper-time-picker.html">
+    <link rel="import" href="bower_components/paper-time-picker/paper-time-picker-dialog-style.html">
+
+    <!-- Custom elements -->
+    <link rel="import" href="custom_components/week-cards.html">
+
+    <!-- js -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <!-- styling sheets -->
+    <link rel="stylesheet" href="css/basicStyle.css">
+    <link rel="stylesheet" href="css/frame.css">
+    <link rel="stylesheet" href="./css/animations.css">
+
+    <title>Time Card - Chronosphere</title>
+</head>
+<body>
+<div class="container">
+    <nav id="mainNav">
+    </nav>
+
+    <header id="pageHeader">
+    </header>
+
+    <div id="mainContent">
+        <div id="prevWeek">
+            <paper-card heading="Monday">
+                <div class="card-content">
+                    Monday
+                </div>
+            </paper-card>
+        </div>
+
+        <div id="currHead">
+            <span id="currWeekHead">Current Week - (Week </span><span style="float: right">Weeks Total: </span>
+        </div>
+
+        <div id="currWeek">
+            <week-cards id="currentWeek" class="curNextWeek" cardType="time"></week-cards>
+        </div>
+
+        <div id="nextHead">
+            <span>Next Week</span>
+        </div>
+
+        <div id="nextWeek">
+            <paper-card heading="Monday">
+                <div class="card-content">
+                    Monday
+                </div>
+            </paper-card>
+        </div>
+    </div>
+</div>
+<!-- container end -->
+<paper-dialog id="timePickerDialog" modal class="paper-time-picker-dialog" on-iron-overlay-closed="dismissDialog">
+    <paper-time-picker id="timePicker" color="green"></paper-time-picker>
+    <div class="timePickerDialogButtons">
+        <paper-button class="timePickerDialogButton" id="timePickerCancel" onclick="closeTimePicker(this)">Cancel
+        </paper-button>
+        <paper-button class="timePickerDialogButton" id="timePickerClear" onclick="closeTimePicker(this)">Clear
+        </paper-button>
+        <paper-button class="timePickerDialogButton" id="timePickerOK" onclick="closeTimePicker(this)">OK</paper-button>
+    </div>
+</paper-dialog>
+
+<script src="js/findWeekStart.js"></script>
+<script src="js/ajaxWeather.js"></script>
+</body>
+</html>
