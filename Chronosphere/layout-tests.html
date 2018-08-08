@@ -1,0 +1,165 @@
+﻿<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+
+    <title>demo6</title>
+
+    <script src="bower-componenets/webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="bower_components/font-roboto/roboto.html">
+    <link rel="import" href="bower_components/iron-icons/iron-icons.html">
+    <link rel="import" href="bower_components/iron-icons/image-icons.html">
+    <link rel="import" href="bower_components/iron-icons/editor-icons.html">
+    <link rel="import" href="bower_components/iron-icons/places-icons.html">
+    <link rel="import" href="bower_components/iron-icons/social-icons.html">
+    <link rel="import" href="bower_components/paper-item/paper-icon-item.html">
+    <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="bower_components/paper-button/paper-button.html">
+    <link rel="import" href="bower_components/app-layout/app-layout.html">
+    <link rel="import" href="bower_components/demo/sample-content.html">
+
+    <!-- 2. Use an HTML Import to bring in some elements. -->
+    <link rel="import" href="bower_components/polymer/polymer.html">
+
+    <!-- Custom elements -->
+    <link rel="import" href="custom_components/week-cards.html">
+
+    <!-- js -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <!-- styling sheets -->
+    <link rel="stylesheet" href="css/basicStyle.css">
+    <link rel="stylesheet" href="css/frame.css">
+    <link rel="stylesheet" href="./css/animations.css">
+
+    <custom-style>
+        <style is="custom-style">
+            :root {
+                --app-drawer-width: 150px;
+            }
+
+            body {
+                margin: 0;
+                font-family: 'Roboto', 'Noto', sans-serif;
+                background-color: #eee;
+            }
+
+            .greenHeader {
+                background-color: #007C42;
+                color: #fff;
+            }
+
+            .greenHeader paper-icon-button {
+                font-weight: bold;
+                --paper-icon-button-ink-color: white;
+            }
+
+            .whiteHeader {
+                background-color: white;
+                --paper-icon-button-ink-color: blue;
+            }
+
+            .iconItem {
+                color: #4C5154;
+            }
+
+            app-drawer-layout:not([narrow]) [drawer-toggle] {
+                display: none;
+            }
+
+            app-drawer {
+                --app-drawer-width: 150px;
+                --app-drawer-content-container: {
+                    /* background-color: #323a3d; */
+                    width: 88px;
+                }
+            }
+
+            app-header-layout a{
+                text-decoration: none;
+            }
+        </style>
+    </custom-style>
+</head>
+
+<body unresolved>
+
+    <app-drawer-layout>
+
+        <app-drawer swipe-open slot="drawer">
+            <app-header-layout has-scrolling-region>
+
+                <app-header class="greenHeader" waterfall fixed slot="header">
+                    <app-toolbar>
+                        <div main-title>N</div>
+                    </app-toolbar>
+                </app-header>
+
+                <a href="index.html">
+                    <paper-icon-item title="Home" class="iconItem">
+                        <iron-icon class="grayIcon" icon="home" slot="item-icon"></iron-icon>
+                        <div>Home</div>
+                    </paper-icon-item>
+                </a>
+                <a href="time-tracking.html">
+                    <paper-icon-item title="Time tracking" class="iconItem">
+                        <iron-icon class="grayIcon" icon="image:timer" slot="item-icon"></iron-icon>
+                        <span>Time</span>
+                    </paper-icon-item>
+                </a>
+                <a href="project-tracking.html">
+                    <paper-icon-item title="Project tracking" class="iconItem">
+                        <iron-icon class="grayIcon" icon="editor:insert-drive-file" slot="item-icon"></iron-icon>
+                        <span>Project</span>
+                    </paper-icon-item>
+                </a>
+                <a href="vaction-requests.html">
+                    <paper-icon-item title="Vacation requests" class="iconItem">
+                        <iron-icon class="grayIcon" icon="places:beach-access" slot="item-icon"></iron-icon>
+                        <span>Vacation</span>
+                    </paper-icon-item>
+                </a>
+            </app-header-layout>
+        </app-drawer>
+
+        <app-header-layout>
+
+            <app-header class="whiteHeader" shadow slot="header">
+                <app-toolbar>
+                    <paper-icon-button icon="menu" drawer-toggle></paper-icon-button>
+                    <div spacer main-title>Welcome to Chronosphere</div>
+                    <paper-icon-button icon="social:person"></paper-icon-button>
+                </app-toolbar>
+            </app-header>
+
+            <sample-content id="mainContent" style="max-height: calc(100vh - 64px)" size="1">
+                <div id="prvWeek">
+                    <week-cards id="prevWeek" class="curNextWeek" cardType="project"></week-cards>
+                </div>
+
+                <div id="currHead">
+                    <h2 style="font-weight: 200"><span id="currWeekHead">Current Week - (Week </span><span id="weeksTotal" style="float: right">Week's Total: 0:00</span></h2>
+                </div>
+
+                <div id="currWeek">
+                    <week-cards id="currentWeek" class="curNextWeek" cardType="project"></week-cards>
+                </div>
+
+                <div id="nextHead">
+                    <h2 style="font-weight: 200"><span>Next Week</span></h2>
+                </div>
+
+                <div id="nxtWeek">
+                    <week-cards id="nextWeek" class="curNextWeek" cardType="project"></week-cards>
+                </div>
+            </sample-content>
+        </app-header-layout>
+    </app-drawer-layout>
+
+    <script src="js/findWeekStart.js"></script>
+    <script src="js/ajaxWeather.js"></script>
+</body>
+</html>

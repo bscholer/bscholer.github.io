@@ -1,0 +1,235 @@
+<dom-module id="week-cards">
+    <link rel="import" href="time-card.html">
+    <link rel="import" href="project-card.html">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../js/moment.js"></script>
+    <template id="printingGrounds">
+        <style>
+            #week {
+                max-width: 50%;
+                height: 95%;
+                align-items: flex-end;
+
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: scroll;
+            }
+        </style>
+        <div id="week"></div>
+    </template>
+
+    <script>
+        // Register custom element definition using standard platform API
+        Polymer({
+            is: "week-cards",
+
+            properties: {
+                weekNumber: {
+                    type: Number,
+                    value: 0
+                },
+                year: {
+                    type: Number,
+                    value: 0
+                },
+                weatherData: {
+                    type: String,
+                    notify: true,
+                    readOnly: false,
+                    value: ""
+                },
+                cardType: {
+                    type: String,
+                    value: ""
+                },
+                projectData: {
+                    type: String,
+                    readOnly: false,
+                    value: ""
+                },
+                weekMins: {
+                    type: String,
+                    notify: true,
+                    value: "00"
+                },
+                weekHours: {
+                    type: String,
+                    notify: true,
+                    value: "00"
+                }
+            },
+
+            listeners: {
+                'weatherData-changed': '_updateWeatherForCards',
+            },
+
+            _updateWeatherForCards: function () {
+                var weatherData;
+
+                var cards = this.querySelectorAll("project-card");
+                if (this.getAttribute("weatherData") !== null && cards.length > 0) {
+                    for (var i = 0; i < cards.length; i++) {
+                        weatherData = JSON.parse(this.getAttribute("weatherData"));
+                        var weatherBitIconUrl = "https://www.weatherbit.io/static/img/icons/";
+                        weatherData.forEach(function (weatherDay) {
+                            // Found a matching day
+                            if (moment(weatherDay["datetime"]).format("MMM DD, YYYY") === cards[i].getAttribute("date")) {
+                                weatherIconCode = weatherDay["weather"]["icon"];
+                                cards[i].setAttribute("weatherIcon", weatherBitIconUrl + weatherIconCode + ".png");
+                                cards[i].setAttribute("weatherLo", Math.round(weatherDay["min_temp"]));
+                                cards[i].setAttribute("weatherHi", Math.round(weatherDay["max_temp"]));
+                            }
+                        });
+                    }
+                }
+            },
+
+            attached: function () {
+                // console.log(this.getAttribute("projectData") + "\n" + this.getAttribute("year") + "\n" + this.getAttribute("cardType"));
+                this.innerHTML = "";
+                var cardType = this.getAttribute("cardType");
+                var weekContainer = this;
+                var d = moment().day("Sunday").week(weekContainer.getAttribute("weekNumber")).year(weekContainer.getAttribute("year"));
+
+                var projectData = JSON.parse(this.getAttribute("projectData"));
+
+                var cards = [];
+
+                for (var i = 0; i < 7; i++) {
+                    if (cardType === "project") {
+                        cards[i] = document.createElement('project-card');
+                    } else if (cardType === "time") {
+                        cards[i] = document.createElement('time-card');
+                    }
+                    cards[i].addEventListener('total-mins-changed', function () {
+                        var week = this.parentElement;
+                        var days = week.querySelectorAll('project-card');
+                        var totHours = 0, totMins = 0;
+                        days.forEach(function (day) {
+                            totHours += parseInt(day.totalHours);
+                            totMins += parseInt(day.totalMins);
+                        });
+
+                        var totDur = moment.duration(totMins, 'minutes');
+                        totHours += Math.floor(totDur.asHours());
+                        totMins = Math.floor(totDur.asMinutes()) % 60;
+                        week.weekHours = totHours + "";
+                        week.weekMins = totMins + "";
+                        if ((week.weekMins).length === 1) {
+                            week.weekMins = "0" + week.weekMins;
+                        }
+                        var event = new Event("week-time-changed");
+                        week.dispatchEvent(event);
+                    });
+                    cards[i].addEventListener('total-hours-changed', function () {
+                        var week = this.parentElement;
+                        var days = week.querySelectorAll('project-card');
+                        var totHours = 0, totMins = 0;
+                        days.forEach(function (day) {
+                            totHours += parseInt(day.totalHours);
+                            totMins += parseInt(day.totalMins);
+                        });
+
+                        var totDur = moment.duration(totMins, 'minutes');
+                        totHours += Math.floor(totDur.asHours());
+                        totMins = Math.floor(totDur.asMinutes()) % 60;
+                        week.weekHours = totHours + "";
+                        week.weekMins = totMins + "";
+                        if ((week.weekMins).length === 1) {
+                            week.weekMins = "0" + week.weekMins;
+                        }
+                        var event = new Event("week-time-changed");
+                        week.dispatchEvent(event);
+                    });
+                }
+
+                if (cardType === "project") {
+                    var t0 = performance.now();
+                    // Don't start creating cards until the data has been loaded.
+                    for (var i = 0; i < 7; i++) {
+                        // Another annoying error that works fine.
+                        if (d !== undefined) {
+                            cards[i].setAttribute("date", d.format("MMM DD, YYYY"));
+                        }
+                        if (projectData !== null) {
+
+                            projectData.forEach(function (day) {
+                                if (new Date(cards[i].getAttribute("date")).getTime() === new Date(day[0].date).getTime()) {
+                                    cards[i].setAttribute("projectData", JSON.stringify(day));
+                                }
+                            });
+                        }
+                        cards[i].setAttribute("id", i);
+
+                        weekContainer.appendChild(cards[i]);
+                        //What's new.
+                        try {
+                            d.add(1, 'day');
+                        } catch (e) {
+                        }
+                    }
+                    var t1 = performance.now();
+                    console.log("Call to AJAX's success took " + (t1 - t0) + " milliseconds.");
+                }
+
+                this._startWeatherAjax();
+            },
+
+            _startWeatherAjax: function () {
+                // Intended for any page that uses cards with weather data.
+                const zip = "46793";
+                var forecastWeather;
+                var currentWeather;
+                var condensedWeather;
+                var localDom = this;
+
+                jQuery(document).ready(function ($) {
+                    $("#currWeek").scrollLeft($("time-card").width() * 4 / 5);
+
+                    $.when(
+                        $.ajax({
+                            url: "https://api.weatherbit.io/v2.0/forecast/daily?postal_code=" + zip + "&units=I&key=b108fbca3895480ca922d549707433fc",
+                            dataType: "jsonp",
+                            success: function (parsed_json) {
+                                forecastWeather = parsed_json["data"];
+                            },
+                        }),
+                        $.ajax({
+                            url: "https://api.weatherbit.io/v2.0/current?postal_code=" + zip + "&units=I&key=b108fbca3895480ca922d549707433fc",
+                            dataType: "jsonp",
+                            success: function (parsed_json) {
+                                currentWeather = parsed_json["data"][0];
+                            },
+                        })).done(function () {
+                        condensedWeather = [{
+                            "datetime": currentWeather["ob_time"].substring(0, currentWeather["ob_time"].indexOf(" ")),
+                            "weather": {
+                                "icon": changeIcon(currentWeather["weather"]["icon"])
+                            },
+                            "min_temp": currentWeather["temp"],
+                            "max_temp": currentWeather["temp"]
+                        }];
+                        forecastWeather.forEach(function (day) {
+                            var newWeather = {
+                                "datetime": day["datetime"],
+                                "weather": {
+                                    "icon": changeIcon(day["weather"]["icon"])
+                                },
+                                "min_temp": day["min_temp"],
+                                "max_temp": day["max_temp"]
+                            };
+                            condensedWeather.push(newWeather);
+                        });
+                        localDom.setAttribute("weatherData", JSON.stringify(condensedWeather));
+                        localDom.fire("weatherData-changed");
+                    });
+
+                    function changeIcon(icon) {
+                        return icon.replace('n', 'd');
+                    }
+                });
+            }
+        })
+    </script>
+</dom-module>

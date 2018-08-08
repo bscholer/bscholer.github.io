@@ -1,0 +1,278 @@
+<dom-module id="time-card">
+    <link rel="import" href="../bower_components/paper-card/paper-card.html">
+    <link rel="import" href="../bower_components/paper-input/paper-input.html">
+    <link rel="import" href="../bower_components/paper-button/paper-button.html">
+    <link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
+    <link rel="import" href="../bower_components/paper-time-picker/paper-time-picker.html">
+    <link rel="import" href="../bower_components/paper-styles/paper-styles.html">
+    <script src="../bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+    <style>
+        .time-input {
+            width: 46%;
+        }
+
+        .card-container {
+            margin: 0 16px 0 0;
+            width: calc((100% / 6) - 18px);
+            min-width: 290px;
+            max-width: 350px;
+            height: 95%;
+
+            display: inline-block;
+        }
+
+        .card-content {
+            max-width: calc((100% - 32px));
+            max-height: calc((100% - 16px));
+            padding: 0 16px 16px;
+            display: grid;
+
+            grid-template-areas: "ttl ttl icn" "day day tmp" "bdy bdy bdy";
+            grid-template-rows: 5em 1fr 6fr;
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        #dayOfWeek {
+            grid-area: ttl;
+        }
+        #weatherImg {
+            transform: translate(0, -10%) scale(.6);
+            grid-area: icn;
+        }
+        #fullDate {
+            grid-area: day;
+        }
+        #temp {
+            grid-area: tmp;
+        }
+        #body {
+            grid-area: bdy;
+        }
+    </style>
+    <script src="../js/moment.js"></script>
+    <template>
+
+        <div class="card-container shadow-4dp" style="height: 95%; padding: 0; background-color: #FFFFFF">
+            <div class="card-content">
+
+                    <h1 id="dayOfWeek"
+                        style="font-weight: 100; display: block;"> [[ day
+                        ]] </h1>
+                    <h3 id="fullDate" style="font-weight: normal; margin-top: 8px; display: block;"></h3>
+
+                    <img id="weatherImg" style="display: inline-block; ">
+
+                    <h3 id="temp"
+                        style="font-weight: 400; display: inline-block; right: 0; margin-right: 16px; margin-top: 8px; float: right; vertical-align: bottom;"></h3>
+
+                <div id="body" class="new-field">
+                    <div class="appender">
+                        <paper-input style="display: inline-block; margin-right: 16px;" class="time-input" label="In"
+                                     onclick="openTimePicker(this)"></paper-input>
+                        <paper-input style="display: inline-block;" class="time-input" label="Out"
+                                     onclick="openTimePicker(this)"></paper-input>
+                    </div>
+                    <div class="totalTime" style="float: right; padding: 16px;"><b>Total: 0:00</b></div>
+                </div>
+            </div>
+        </div>
+
+        <custom-style>
+            <style is="custom-style">
+                .shadow-2dp {
+                    @apply --shadow-elevation-2dp;
+                }
+
+                .shadow-3dp {
+                    @apply --shadow-elevation-3dp;
+                }
+
+                .shadow-4dp {
+                    @apply --shadow-elevation-4dp;
+                }
+
+                .shadow-6dp {
+                    @apply --shadow-elevation-6dp;
+                }
+
+                .shadow-8dp {
+                    @apply --shadow-elevation-8dp;
+                }
+
+                .shadow-12dp {
+                    @apply --shadow-elevation-12dp;
+                }
+
+                .shadow-16dp {
+                    @apply --shadow-elevation-16dp;
+                }
+            </style>
+        </custom-style>
+        <script>
+            function openTimePicker(input) {
+                currentTimeInput = input;
+                timePicker = document.getElementById("timePicker");
+                timePickerDialog = document.getElementById("timePickerDialog");
+                timePicker.view = "hours";
+                if (currentTimeInput.value === null) {
+                    timePicker.time = "12:00am";
+                } else {
+                    timePicker.time = currentTimeInput.value;
+                }
+                timePickerDialog.toggle();
+            }
+
+            function closeTimePicker(button) {
+                //TODO This should update the DB
+                //TODO force in time to be before out time
+                timePickerDialog.toggle();
+                if (button.id === "timePickerClear") {
+                    currentTimeInput.value = "";
+                } else if (button.id === "timePickerOK") {
+                    //Set the input to the timePicker's time
+                    currentTimeInput.value = timePicker.time;
+                    if (timePicker.time === "") {
+                        currentTimeInput.value = "12:00 AM";
+                    }
+                }
+                // Grab the currentTimeInput's parent appender
+                var appender = currentTimeInput.closest("div.appender");
+                //Check to see if both inputs in the appender are filled
+                var filled = inputChecks(appender, 'time-input');
+                console.log(filled);
+                if (filled === "partial") {
+                    var parentDiv = appender.closest("div.new-field");
+                    // Get all the appenders in the parent
+                    var appenderList = parentDiv.childNodes;
+                    console.log(appenderList);
+                    appenderList = filterElements(appenderList, 'appender');
+                    appenderList.forEach(function (appender) {
+                        if (inputChecks(appender, 'time-input') === "empty") {
+                            parentDiv.removeChild(appender);
+                        }
+                    });
+                }
+                calcTotalTime(appender);
+                if (button.id === "timePickerOK" || button.id === "timePickerCancel") {
+                    //Find the input's parent appender
+                    if (filled === "filled") {
+                        appendTimeSlots(appender);
+                    }
+                }
+                currentTimeInput = null;
+            }
+
+            function calcTotalTime(appender) {
+                var total = 0;
+                // Find the appender's parent .new-field
+                var parentDiv = appender.closest("div.new-field");
+                // Get all the appenders in the parent
+                var appenderList = parentDiv.childNodes;
+                appenderList = filterElements(appenderList, 'appender');
+                appenderList.forEach(function (appenderDiv) {
+                    if (inputChecks(appenderDiv, 'time-input') === "filled") {
+                        var inputTimes = getContent(appenderDiv, 'time-input');
+                        var startTime = moment(inputTimes[0], "HH:mm a");
+                        var endTime = moment(inputTimes[1], "HH:mm a");
+                        var duration = moment.duration(endTime.diff(startTime));
+                        console.log(duration);
+                        var minutes = parseInt(duration.asMinutes());
+                        total += minutes;
+                    }
+                });
+                var totalDur = moment.duration(total, 'minutes');
+                var hours = Math.floor(totalDur.asHours());
+                var minutes = Math.floor(totalDur.asMinutes()) % 60;
+                console.log("Total: " + hours + ":" + minutes);
+                document.querySelector(".totalTime").innerHTML = "<b>Total: " + hours + ":" + ((minutes < 10) ? "0" + minutes : minutes) + "</b>";
+            }
+
+            function filterElements(elements, className) {
+                var filtered = [];
+                elements.forEach(function (element) {
+                    var elementClasses = element.classList;
+                    if (elementClasses !== undefined && elementClasses[0] === className) {
+                        filtered.push(element);
+                    }
+                });
+                return filtered;
+            }
+
+            function getContent(appender, className) {
+                var contentList = [];
+                var inputs = appender.childNodes;
+                inputs = filterElements(inputs, className);
+                inputs.forEach(function (input) {
+                    var val = input.value;
+                    contentList.push(val);
+                });
+                return contentList;
+            }
+
+            // Returns "partial" for partially filled row, "filled" for filled row, and "empty" for empty row
+            function inputChecks(appender, className) {
+                var passed = "empty";
+                var times = getContent(appender, className);
+                if (times[0] !== "" && (times[1] !== undefined && times[1] !== "")) {
+                    return "filled";
+                } else if (times[0] !== "" || (times[1] !== undefined && times[1] !== "")) {
+                    return "partial";
+                } else {
+                    return "empty";
+                }
+            }
+
+            function appendTimeSlots(appender) {
+                // Find the appender's parent .new-field
+                var parentDiv = appender.closest("div.new-field");
+                // Clone the appender
+                var cln = appender.cloneNode(true);
+                // Append the appender
+                parentDiv.appendChild(cln);
+            }
+        </script>
+    </template>
+
+    <script>
+        // Register custom element definition using standard platform API
+        Polymer({
+            is: "time-card",
+
+            //For the current day, we only get one temp, which is passed into the hi AND lo. When both are the same, we format it differently.
+            properties: {
+                date: String,
+                weatherIcon: String,
+                weatherHi: Number,
+                weatherLo: Number,
+                timeSet: String
+            },
+
+            attributeChanged: function () {
+                var d = new Date(this.date);
+                var n = d.getDay();
+
+                var monthNames = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"
+                ];
+                var days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                var dateString = monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+
+                this.$.dayOfWeek.innerHTML = days[d.getDay()] + "&nbsp;&nbsp;";
+                this.$.fullDate.innerHTML = dateString;
+
+                if (this.getAttribute("weatherIcon") !== null) {
+                    this.$.weatherImg.src = this.getAttribute("weatherIcon"); //this.weatherIcon;
+                }
+                if (this.getAttribute("weatherLo") !== null) {
+                    if (this.getAttribute("weatherLo") === this.getAttribute("weatherHi")) {
+                        this.$.temp.innerHTML = this.getAttribute("weatherLo") + "&nbsp&deg;F";
+                    } else {
+                        this.$.temp.innerHTML = this.getAttribute("weatherLo") + "&nbsp|&nbsp" +
+                            this.getAttribute("weatherHi") + "&nbsp&deg;F";
+                    }
+                }
+            },
+
+        })
+    </script>
+</dom-module>
