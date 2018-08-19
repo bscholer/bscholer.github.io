@@ -1,43 +1,35 @@
 var stops = [
-    [32, 'Cary Quad (back of Cary'],
-    [30, 'Wiley/Tarkington'],
-    [28, 'Co-rec'],
-    [26, 'Windsor/Meredith'],
-    [24, 'Earhart'],
-    [22, 'Shreve/Hillenbrand'],
-    [20, 'McCutcheon'],
-    [15, 'Honors North/Honors South'],
-    [14, 'Corner by Bechtel (Third Street)'],
-    [9, 'Hawkins/Young'],
-    [5, 'Arrive at church']];
+    // [32, 'Cary Quad (back of Cary)'],
+    [2, 'Wiley/Tarkington'],
+    [2, 'Co-rec'],
+    [2, 'Windsor/Meredith'],
+    [2, 'Earhart'],
+    [2, 'Shreve/Hillenbrand'],
+    [2, 'McCutcheon'],
+    [5, 'Honors North/Honors South'],
+    [1, 'Corner by Bechtel (Third Street)'],
+    [5, 'Hawkins/Young'],
+    [4, 'Arrive at church']];
 
 function calculate() {
-    var time = document.getElementById("time").valueAsDate;
-    var hours = time.getHours();
-    // Adjusting for EST
-    hours += 5;
-    if (hours > 12) hours -= 12;
-    var minutes = time.getMinutes();
-    var newStops = "";
-    for (var i = 0; i < stops.length; i++) {
-        var stop = stops[i];
-        var stopOutput = "";
-        // We need to go to the previous hour.
-        if (minutes < stop[0]) {
-            stopOutput = stop[1] + " - " + (hours - 1) + ":" + (minutes + 60 - stop[0]) + "<br/>";
-        }
-        else {
-            stopOutput = stop[1] + " - " + hours + ":" + (minutes - stop[0]) + "<br/>";
-        }
-        console.log(stopOutput.substring(stopOutput.indexOf(":")));
-        // Check to see if we need a 0 in front of the minutes
-        if (stopOutput.substring(stopOutput.indexOf(":") + 1).length === 6) {
-            console.log(stopOutput);
-            stopOutput = stopOutput.substring(0, stopOutput.indexOf(":")) + ":0" + stopOutput.substring(stopOutput.indexOf(":") + 1);
-        }
-        newStops += stopOutput;
+    var newStopsElement = document.getElementById("newStops");
+    var momentMatches = ["hmm", "hmma", "hmm a", "hhmma", "hhmm a", "hhmm", "h:mma", "h:mm a"];
+    var momentCorrectFormat = "h:mm A";
+    var time = document.getElementById("time").value;
+    console.log(moment(time, momentMatches).format(momentCorrectFormat));
+    var inputMoment = moment(time, momentMatches);
+    if (inputMoment.format() === "Invalid date") {
+        newStopsElement.innerHTML = "Invalid Time";
+        return;
     }
-    console.log(newStops);
+    var newStops = "Cary Quad (back of Cary) - " + inputMoment.subtract(32, "minutes").format(momentCorrectFormat) +
+        "<br />";
+
+    stops.forEach(function (stop) {
+        var stopOutput = stop[1] + " - " + inputMoment.add(stop[0], "minutes").format(momentCorrectFormat) + "<br/>";
+        console.log(stopOutput.substring(stopOutput.indexOf(":")));
+        newStops += stopOutput;
+    });
     document.getElementById("newStops").innerHTML = newStops;
 }
 
