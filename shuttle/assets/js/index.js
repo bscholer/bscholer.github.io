@@ -1,6 +1,15 @@
 var stops = [
     // [32, 'Cary Quad (back of Cary)'],
-    [2, 'Wiley/Tarkington'],
+    [3, 'Hilltop Apt 1/2'],
+    [2, 'Hilltop Apt 8/9'],
+    [3, 'Hilltop Apt 29'],
+    [2, 'Hilltop Apt 25'],
+    [2, 'Hilltop 32'],
+    [2, 'Phi Psi (north)'],
+    [2, 'AXO/GPhiB'],
+    [2, 'AGD/Phi Rho'],
+    [2, 'BYX'],
+    [3, 'Wiley/Tarkington'],
     [2, 'Co-rec'],
     [2, 'Windsor/Meredith'],
     [2, 'Earhart'],
@@ -22,7 +31,7 @@ function calculate() {
         newStopsElement.innerHTML = "Invalid Time";
         return;
     }
-    var newStops = "Cary Quad (back of Cary) - " + inputMoment.subtract(32, "minutes").format(momentCorrectFormat) +
+    var newStops = "Cary Quad (back of Cary) - " + inputMoment.subtract(53, "minutes").format(momentCorrectFormat) +
         "<br />";
 
     stops.forEach(function (stop) {
