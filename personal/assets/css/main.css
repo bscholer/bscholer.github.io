@@ -140,10 +140,10 @@ body:after {
     background-repeat: repeat, no-repeat;
     background-size: 100px 100px, cover;
     background-position: top left, center center;
-    -moz-transition: opacity 1.75s ease-out;
-    -webkit-transition: opacity 1.75s ease-out;
-    -ms-transition: opacity 1.75s ease-out;
-    transition: opacity 1.75s ease-out;
+    -moz-transition: opacity 1..2s ease-out;
+    -webkit-transition: opacity 1..2s ease-out;
+    -ms-transition: opacity 1..2s ease-out;
+    transition: opacity 1..2s ease-out;
 }
 
 body.is-preload:after {
@@ -197,6 +197,10 @@ a:before {
 
 a:hover {
     color: #c28e0e;
+}
+
+#purdue_text:hover {
+    color: #000000
 }
 
 strong, b {
@@ -754,6 +758,10 @@ ul.icons li a:before {
     text-shadow: 1.25px 0px 0px #c8cccf, -1.25px 0px 0px #c8cccf, 0px 1.25px 0px #c8cccf, 0px -1.25px 0px #c8cccf;
 }
 
+ul.icons li a {
+    transition: all 0.2s ease-in-out;
+}
+
 ul.icons li a:hover:before {
     text-shadow: 1.25px 0px 0px #c28e0e, -1.25px 0px 0px #c28e0e, 0px 1.25px 0px #c28e0e, 0px -1.25px 0px #c28e0e;
 }
@@ -768,10 +776,6 @@ ul.icons li a:before {
     line-height: inherit;
     text-align: center;
     text-indent: 0;
-}
-
-ul.icons li a:hover {
-    border-color: #c28e0e;
 }
 
 @media screen and (max-width: 480px) {
