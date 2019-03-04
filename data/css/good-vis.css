@@ -1,0 +1,80 @@
+/*path {*/
+/*fill: #ccc;*/
+/*stroke: #fff;*/
+/*stroke-width: .5px;*/
+/*}*/
+
+/*path:hover {*/
+/*fill: red;*/
+/*}*/
+.states {
+    fill: none;
+    stroke: #212121;
+    stroke-linejoin: round;
+}
+
+#preferences-form {
+    width: 300px;
+    /*float: right;*/
+}
+
+#container {
+    display: grid;
+    grid-template-columns: 400px 1fr 7em;
+    grid-template-rows: 375px 4em 1fr;
+    grid-row-gap: 1em;
+    grid-template-areas: "options map legend" "county map legend" "county map legend";
+}
+
+#preferences-form {
+    grid-area: options;
+    /*background-color: #303030;*/
+    padding-left: 1em;
+    height: 375px;
+    border-radius: 8px;
+}
+
+#county-data {
+    grid-area: county;
+    background-color: #303030;
+    border-radius: 8px;
+}
+
+#descriptor {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+#data {
+    margin: 0;
+    font-size: large;
+}
+
+#map {
+    transform: scale(1.4) translate(0, 4.5em);
+    grid-area: map;
+}
+
+#legend {
+    grid-area: legend;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.data-element {
+    margin-right: auto;
+    margin-left: auto;
+}
+
+/* Color themes */
+.teal-purple {
+    background-image: linear-gradient(180deg, #03DAC6, #6200EE);
+}
+
+.light-blue-dark-blue {
+    background-image: linear-gradient(180deg, #E1F5FE, #01579B);
+}
+
+.yellow-orange {
+    background-image: linear-gradient(180deg, #FF7043, #FFEE58);
+}

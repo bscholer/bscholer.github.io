@@ -1,0 +1,47 @@
+@font-face {
+    font-family: Gilroy-Bold;
+    src: local("../fonts/Gilroy-ExtraBold.otf");
+}
+
+@font-face {
+    font-family: Gilroy;
+    src: local("../fonts/Gilroy-Light.otf");
+}
+
+body {
+    font-family: Gilroy, sans-serif;
+    background-color: #212121;
+    color: #FFFFFF;
+}
+
+#legend-container {
+    display: grid;
+    grid-template-columns: 7em;
+    grid-template-rows: 1.5em 400px 1.5em;
+    grid-row-gap: 1em;
+    grid-template-areas: "min" "legend" "max";
+    grid-column-gap: .5em;
+    font-size: x-large;
+    text-align: center;
+}
+
+#legend-min-val {
+    grid-area: min;
+    text-align: center;
+}
+
+#legend {
+    width: 30px;
+    height: 400px;
+    /*background-image: linear-gradient(to right, #FFFFFF, teal);*/
+    border-radius: 8px;
+    grid-area: legend;
+}
+
+#legend-max-val {
+    grid-area: max;
+    text-align: center;
+}
+
+.legend {
+}

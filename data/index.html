@@ -1,15 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <title>Data Visualization</title>
 </head>
 <body>
-<p>What's up Trinity! Glad you decided to pop by and visit. Here's an English meme to make it worth your while.</p>
-<img src="meme.jpg">
-<p>Grammarly and Word both said my grammar is spot-on, so please make this meme a reality, thanks!</p>
-<p>PS: The data visualization will not look as trash as this, but I figured I'd throw this together for the hell of it.</p>
-<p>Please enjoy this <a href="https://codepen.io/nico3d911/pen/KJXVYz">fun Simon game</a> I found. Didn't have the time or energy to add it to this page, so here we are.</p>
-<p>If you'd like to see my personal site, please navigate to <a href="/personal/index.html">my personal page</a>.</p>
+<button onclick="downloadPoverty()" id="povertydown">Poverty</button>
+<button onclick="downloadEducation()" id="educationdown">Education</button>
+<button onclick="downloadUnemployment()" id="unemploymentdown">Unemployment</button>
+<div id="dump"></div>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script src="js/main.js"></script>
+<script src="js/jquery.js"></script>
 </body>
 </html>
