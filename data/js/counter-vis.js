@@ -138,6 +138,9 @@ function main(type, theme) {
                     break;
             }
 
+            //Set the disclaimer
+            document.getElementById("verbose-disclaimer").innerText = disclaimerText;
+
             //Set the legend
             document.getElementById("legend-min-val").innerText =
                 ((type === 1) ? "$" : "") + domain[0].toFixed(0) + ((type === 1) ? "" : "%");
