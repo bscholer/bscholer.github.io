@@ -4,7 +4,7 @@ var themes = [
     //light blue -> dark blue
     ["#E1F5FE", "#01579B", "light-blue-dark-blue"],
     //yellow -> orange
-    ["#FF7043", "#FFEE58", "yellow-orange"]
+    ["#FFEE58", "#FF7043", "yellow-orange"]
 ];
 const DEFAULT_TYPE = 0;
 const DEFAULT_THEME = 0;
@@ -100,34 +100,46 @@ function main(type, theme) {
             // console.log(us);
             // console.log(fips);
 
-            //Use the correct data
+            //Use the correct data, and set the disclaimer
+            var disclaimerText;
             var domain;
             switch (type) {
                 case 0:
+                    disclaimerText = "unemployment rates";
                     domain = unemploymentRateDomain;
                     break;
                 case 1:
+                    disclaimerText = "median household income";
                     domain = householdIncomeDomain;
                     break;
                 case 2:
+                    disclaimerText = "poverty for all ages";
                     domain = povertyAllAgesDomain;
                     break;
                 case 3:
+                    disclaimerText = "poverty for ages 0-17";
                     domain = povertyMinorDomain;
                     break;
                 case 4:
+                    disclaimerText = "percentages of people with less than a high school diploma";
                     domain = educationLTHSDDomain;
                     break;
                 case 5:
+                    disclaimerText = "percentages of people with a high school diploma only";
                     domain = educationHSDODomain;
                     break;
                 case 6:
+                    disclaimerText = "percentages of people with some college (1-3 years)";
                     domain = educationSCADDomain;
                     break;
                 case 7:
+                    disclaimerText = "percentages of people with a bachelor's degree or higher";
                     domain = educationBDHDomain;
                     break;
             }
+
+            //Set the disclaimer
+            document.getElementById("verbose-disclaimer").innerText = disclaimerText;
 
             //Set the legend
             document.getElementById("legend-min-val").innerText =
