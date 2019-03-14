@@ -1,0 +1,10 @@
+@font-face {
+    font-family: Gilroy-Bold;
+    src: local("../fonts/Gilroy-ExtraBold.otf");
+}
+
+@font-face {
+    font-family: Gilroy;
+    src: local("../fonts/Gilroy-Light.otf");
+}
+

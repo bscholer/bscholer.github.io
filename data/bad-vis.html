@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67154900-2"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-67154900-2');
+    </script>
+    <meta charset="utf-8">
+    <title>Bad Visualization</title>
+    <link rel="stylesheet" href="css/bad-vis.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/c3.css">
+</head>
+<body>
+<div id="container" style="margin-right: 1em">
+    <div id="preferences-form">
+        <div id="data-form">
+            <p><b>Data</b></p>
+            <label><input type="radio" name="data" value="0" checked>Unemployment Rate</label>
+            <label><input type="radio" name="data" value="1">Household Income</label>
+            <label><input type="radio" name="data" value="2">Poverty - All Ages</label>
+            <label><input type="radio" name="data" value="3">Poverty - Ages 0-17</label>
+            <label><input type="radio" name="data" value="4">Less than a High School Diploma</label>
+            <label><input type="radio" name="data" value="5">High School Diploma only</label>
+            <label><input type="radio" name="data" value="6">Some college (1-3 years)</label>
+            <label><input type="radio" name="data" value="7">Bachelor's degree or higher</label>
+        </div>
+        <div>
+            <button onclick="submitListener()">Render</button>
+        </div>
+    </div>
+    <div id="county-data" style="padding: 1em;">
+        <h1 id="descriptor">Scroll over a county</h1>
+        <p id="data"></p>
+    </div>
+</div>
+
+<script src="js/jquery.js"></script>
+<script src="//d3js.org/d3.v3.min.js"></script>
+<script src="//d3js.org/topojson.v1.min.js"></script>
+<script src="js/c3.min.js"></script>
+<script src="js/gauge.js"></script>
+<script src="js/main.js"></script>
+<script src="js/bad-vis.js"></script>
+</body>
+</html>
