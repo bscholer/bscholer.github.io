@@ -12,10 +12,10 @@ const DEFAULT_THEME = 0;
 function submitListener() {
     console.log("Hi");
     var dataType = getRadioVal(document.getElementById("data-form"), "data");
-    var themeType = getRadioVal(document.getElementById("theme-form"), "theme");
+    //var themeType = getRadioVal(document.getElementById("theme-form"), "theme");
     dataType = parseInt(dataType);
-    themeType = parseInt(themeType);
-    main(dataType, themeType)
+    //themeType = parseInt(themeType);
+    main(dataType, DEFAULT_THEME);
 }
 
 var descriptor = document.getElementById("descriptor");
@@ -23,17 +23,15 @@ var dataArea = document.getElementById("data");
 
 main(DEFAULT_TYPE, DEFAULT_THEME);
 
-/*
-Types:
-0: Unemployment Rate
-1: Household Income
- */
 function main(type, theme) {
     let map = document.getElementById("map");
     if (map) {
         console.log(map.getAttribute("mapType"));
         if (map.getAttribute("mapType") !== type + "" || map.getAttribute("themeType") !== theme + "") {
             map.parentNode.removeChild(map);
+            document.getElementById("page-title").innerText = "";
+			document.getElementById("legend-container").style.display = "none";
+			document.getElementById("loader").style.display = "block";
         } else {
             return;
         }
@@ -101,45 +99,55 @@ function main(type, theme) {
             // console.log(fips);
 
             //Use the correct data, and set the disclaimer
-            var disclaimerText;
-            var domain;
+            let disclaimerText, domain, title;
             switch (type) {
                 case 0:
                     disclaimerText = "unemployment rates";
+                    title = "Unemployment Rate";
                     domain = unemploymentRateDomain;
                     break;
                 case 1:
                     disclaimerText = "median household income";
+                    title = "Median Household Income";
                     domain = householdIncomeDomain;
                     break;
                 case 2:
                     disclaimerText = "poverty for all ages";
+                    title = "Percent in Poverty - All Ages";
                     domain = povertyAllAgesDomain;
                     break;
                 case 3:
                     disclaimerText = "poverty for ages 0-17";
+                    title = "Percent in Poverty - Ages 0-17";
                     domain = povertyMinorDomain;
                     break;
                 case 4:
                     disclaimerText = "percentages of people with less than a high school diploma";
+                    title = "Percent with Less than a High School Diploma";
                     domain = educationLTHSDDomain;
                     break;
                 case 5:
                     disclaimerText = "percentages of people with a high school diploma only";
+                    title = "Percent with a High School Diploma Only";
                     domain = educationHSDODomain;
                     break;
                 case 6:
                     disclaimerText = "percentages of people with some college (1-3 years)";
+                    title = "Percent with Some College (1-3 years)";
                     domain = educationSCADDomain;
                     break;
                 case 7:
                     disclaimerText = "percentages of people with a bachelor's degree or higher";
+                    title = "Percent with a Bachelor's Degree or Higher";
                     domain = educationBDHDomain;
                     break;
             }
 
             //Set the disclaimer
             document.getElementById("verbose-disclaimer").innerText = disclaimerText;
+
+            //Set the page title
+            document.getElementById("page-title").innerText = title;
 
             //Set the legend
             document.getElementById("legend-min-val").innerText =
@@ -153,6 +161,8 @@ function main(type, theme) {
                 $("#legend").removeClass(themeData[2]);
             });
             $("#legend").addClass(themes[theme][2]);
+			document.getElementById("legend-container").style.display = "grid";
+            document.getElementById("loader").style.display = "none";
 
             //Draw the map
             var width = 960,
@@ -249,7 +259,7 @@ function main(type, theme) {
                             break;
                     }
 
-                    if (!val) return "#FFFFFF";
+                    if (!val) return "#336DDA";
                     return fill(val);
                 })
                 // .on("mouseover", handleMouseOver)
@@ -272,7 +282,7 @@ function main(type, theme) {
 
 function handleMouseOver(d, i) {
     let props = d.properties;
-    // console.log(d);
+    console.log(d);
     if (props.Area) {
         descriptor.innerText = props.Area.County + ", " + props.Area.State;
     } else {

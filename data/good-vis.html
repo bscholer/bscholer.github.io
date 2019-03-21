@@ -1,15 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67154900-2"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-67154900-2');
-    </script>
     <meta charset="utf-8">
     <title>Good Visualization</title>
     <link rel="stylesheet" href="css/good-vis.css">
@@ -18,26 +9,26 @@
 </head>
 <body>
 <div id="container" style="margin-right: 1em">
+    <h1 id="page-title"></h1>
     <div id="preferences-form">
-        <div id="data-form">
-            <p><b>Data</b></p>
-            <div><label><input type="radio" name="data" value="0" checked>Unemployment Rate</label></div>
-            <div><label><input type="radio" name="data" value="1">Household Income</label></div>
-            <div><label><input type="radio" name="data" value="2">Poverty - All Ages</label></div>
-            <div><label><input type="radio" name="data" value="3">Poverty - Ages 0-17</label></div>
-            <div><label><input type="radio" name="data" value="4">Less than a High School Diploma</label></div>
-            <div><label><input type="radio" name="data" value="5">High School Diploma only</label></div>
-            <div><label><input type="radio" name="data" value="6">Some college (1-3 years)</label></div>
-            <div><label><input type="radio" name="data" value="7">Bachelor's degree or higher</label></div>
-        </div>
-        <div id="theme-form" style="margin-bottom: 1em;">
-            <p><b>Theme</b></p>
-            <div><label><input type="radio" name="theme" value="0" checked>teal/purple</label></div>
-            <div><label><input type="radio" name="theme" value="1">light blue/dark blue</label></div>
-            <div><label><input type="radio" name="theme" value="2">yellow/orange</label></div>
-        </div>
-        <div>
-            <button onclick="submitListener()" class="button">Render</button>
+        <div id="data-form" style="margin-bottom: 1em;">
+            <p style="font-size: larger;"><b>Data</b></p>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="0" checked>Unemployment
+                Rate</label></div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="1">Household Income</label>
+            </div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="2">Poverty - All Ages</label>
+            </div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="3">Poverty - Ages 0-17</label>
+            </div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="4">Less than a High School
+                Diploma</label></div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="5">High School Diploma
+                only</label></div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="6">Some college (1-3
+                years)</label></div>
+            <div><label><input onclick="submitListener()" type="radio" name="data" value="7">Bachelor's degree or higher</label>
+            </div>
         </div>
     </div>
     <div id="county-data" style="padding: 1em;">
@@ -50,6 +41,11 @@
         <div id="legend"></div>
         <div id="legend-max-val"></div>
     </div>
+    <div id="loader" class="loader">
+        <div class="inner one"></div>
+        <div class="inner two"></div>
+        <div class="inner three"></div>
+    </div>
 </div>
 <div style="position: absolute; bottom: 1em; left: 1em; display: inline-block;">Currently displaying
     <div id="verbose-disclaimer" style="display: inline-block;"></div>
@@ -59,10 +55,13 @@
     <a href="downloads/Unemployment.xls" download>Unemployment</a> data are used.
 </div>
 
+<div style="position:absolute; bottom: 1em; right: 1em; text-align: right; display: inline-block;">
+    Developed by <a href="https://bscholer.github.io/personal/index.html">Ben Scholer</a>. All code is open source and available in the <a href="https://github.com/bscholer/ENGL203DataVis">GitHub repository.</a>
+</div>
+
 <script src="js/jquery.js"></script>
 <script src="//d3js.org/d3.v3.min.js"></script>
 <script src="//d3js.org/topojson.v1.min.js"></script>
-<script src="js/gauge.js"></script>
 <script src="js/main.js"></script>
 <script src="js/good-vis.js"></script>
 </body>
