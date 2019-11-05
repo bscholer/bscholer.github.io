@@ -1,0 +1,30 @@
+h1 {
+    color: white;
+    padding-top: .5em;
+    padding-bottom: .5em;
+    margin: 0;
+    padding-left: .5em;
+    display: inline-block;
+}
+
+#header-button-container {
+    float: right;
+    display: inline-block;
+}
+
+body {
+    margin: 0;
+}
+
+#floor-plan-container {
+    display: grid;
+}
+
+#floor-plan-background, svg {
+    grid-column: 1;
+    grid-row: 1;
+}
+
+#floor-plan-background {
+    pointer-events: none;
+}

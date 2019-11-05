@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" type="text/css" href="index.css"/>
+    <meta charset="UTF-8">
+    <title>Vertex Test</title>
+</head>
+<body>
+<div id="header-container" style="background-color: darkblue; height: 4.25em;">
+    <h1>Vertex Test</h1>
+    <div id="header-button-container">
+        <button style="" onclick="document.getElementById('floor-plan-upload-input').click();">Upload Floor Plan
+        </button>
+        <input id="floor-plan-upload-input" type="file" style="display: none;" onchange="openImage()">
+        <button style="">Import Drawing</button>
+        <button style="">Download Drawing</button>
+    </div>
+</div>
+<div id="floor-plan-container">
+    <img src="floor%20plan.jpg" alt="Floor Plan" id="floor-plan-background">
+    <!-- TODO testing--remove later -->
+<!--    <img src="" alt="Floor Plan" style="width: 1000px; height: 800px;" id="floor-plan-background">-->
+</div>
+<!-- TODO Remove src -->
+
+<script src="d3.js"></script>
+<script src="index.js"></script>
+</body>
+</html>
