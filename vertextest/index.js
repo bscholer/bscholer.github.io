@@ -89,16 +89,23 @@ svg.on("click", function () {
             let startNode = findNode(lineStartNodeID);
             let closestNodeID = findClosestNode(coords[0], coords[1]);
             let endNode = findNode(closestNodeID);
+            let newLine = {
+                startNodeID: startNode.nodeID,
+                endNodeID: endNode.nodeID,
+                stroke: 5,
+                color: "orange"
+            };
+            console.log(newLine);
             console.log(startNode);
-            console.log(endNode);
             svg.append("line")
                 .attr("x1", startNode.x)
                 .attr("y1", startNode.y)
                 .attr("x2", endNode.x)
                 .attr("y2", endNode.y)
-                .attr("stroke-width", 5)
-                .attr("stroke", "orange");
+                .attr("stroke-width", newLine.stroke)
+                .attr("stroke", newLine.color);
             lineStartNodeID = null;
+            features.lines.push(newLine);
         }
     }
 
@@ -180,3 +187,11 @@ function findNode(nodeID) {
 //         w.on("mousemove", null).on("mouseup", null)
 //     }
 // })
+
+function downloadData() {
+    let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(features));
+    let downloadAnchor = document.getElementById("downloadAnchor");
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", "features.json");
+    downloadAnchor.click();
+}
