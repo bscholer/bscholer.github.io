@@ -96,8 +96,8 @@ svg.on("click", function () {
                 .attr("y1", startNode.y)
                 .attr("x2", endNode.x)
                 .attr("y2", endNode.y)
-                .attr("stroke-width", 2)
-                .attr("stroke", "green");
+                .attr("stroke-width", 5)
+                .attr("stroke", "orange");
             lineStartNodeID = null;
         }
     }
@@ -107,7 +107,7 @@ svg.on("click", function () {
         let newNode = {
             nodeID: ++nodeCounter,
             nodeType: 0,
-            r: 5,
+            r: 10,
             x: coords[0],
             y: coords[1]
         };
