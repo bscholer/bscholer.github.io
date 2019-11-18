@@ -1,0 +1,76 @@
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #eeeeee;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 500px; /* Could be more or less, depending on screen size */
+    border-radius: 8px;
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#settings-title, #line-edit-dialog-title, #node-edit-dialog-title {
+    margin-top: 0;
+    margin-bottom: 8px;
+}
+
+#settings-tab-bar {
+    border-radius: 6px 6px 0 0;
+    background-color: #fefefe;
+    width: 6em;
+    padding: 8px;
+    border-top: black 1px solid;
+    border-right: black 1px solid;
+    border-left: black 1px solid;
+}
+
+.settings-area {
+    border-radius: 6px;
+    border-top-left-radius: 0;
+    background-color: #fefefe;
+    border: black 1px solid;
+    padding: 8px 8px 0;
+}
+
+.edit-area {
+    border-radius: 6px;
+    background-color: #fefefe;
+    border: black 1px solid;
+    padding: 8px 8px 0;
+}
+
+.settings-item, .edit-item {
+    margin-bottom: 8px;
+}
+
+label {
+    margin-right: 8px;
+}
