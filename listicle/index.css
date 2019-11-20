@@ -1,0 +1,32 @@
+body {
+    font-family: Gilroy-Light, Arial, sans-serif;
+    background-color: lightblue;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+h1, h2, h3 {
+    font-family: "Gilroy ExtraBold", Arial, sans-serif;
+}
+
+h1 {
+    margin-bottom: 8px;
+}
+
+#container {
+    width: 800px;
+    padding: 100px;
+    padding-top: 20px;
+    height: 100%;
+    margin-right: auto;
+    margin-left: auto;
+    background-color: white;
+}
+
+img {
+    padding-left: 16px;
+    float: right;
+    width: 250px;
+    height: auto;
+    margin-top: 20px;
+}
