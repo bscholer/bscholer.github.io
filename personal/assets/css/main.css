@@ -140,10 +140,10 @@ body:after {
     background-repeat: repeat, no-repeat;
     background-size: 100px 100px, cover;
     background-position: top left, center center;
-    -moz-transition: opacity 1..2s ease-out;
-    -webkit-transition: opacity 1..2s ease-out;
-    -ms-transition: opacity 1..2s ease-out;
-    transition: opacity 1..2s ease-out;
+    -moz-transition: opacity 1.2s ease-out;
+    -webkit-transition: opacity 1.2s ease-out;
+    -ms-transition: opacity 1.2s ease-out;
+    transition: opacity 1.2s ease-out;
 }
 
 body.is-preload:after {
@@ -980,7 +980,6 @@ body.is-preload #main {
 
 #footer {
     -moz-align-self: -moz-flex-end;
-    -webkit-align-self: -webkit-flex-end;
     -ms-align-self: -ms-flex-end;
     align-self: flex-end;
     width: 100%;
