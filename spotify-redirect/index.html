@@ -8,9 +8,9 @@
 <h1>Code:</h1>
 <div id="code"></div>
 <script>
-    var url_string = window.location.href.replace(".html#", ".html?");
+    var url_string = window.location.href;
     var url = new URL(url_string);
-    var code = url.searchParams.get("access_token");
+    var code = url.searchParams.get("code");
     document.getElementById("code").innerText = code;
 </script>
 </body>
