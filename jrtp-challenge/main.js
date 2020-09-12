@@ -15,23 +15,7 @@ significantly less performant. To combat this, I ended up using the simple dista
 and only use the function that returns miles for the user output.
  */
 
-
-Papa = require("papaparse");        // For parsing the CSV
-dayjs = require("dayjs");           // For calculating runtimes (I could've done this with native JS, but I really like this library)
-fs = require("fs");                 // For reading the CSV file
-readline = require("readline")      // For reading stdin
-
-
-
-// For generating random points for stress testing
-const MAX_LAT = 41.76226974, MAX_LON = -84.79161827, MIN_LAT = 37.78268022, MIN_LON = -88.02119017;
-// Configure readline
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-    terminal: true
-});
-
+const production = false;
 
 class Refpoints {
     // Loading in the points takes a bit of time and is done in a different thread, so we need a callback.
@@ -62,14 +46,14 @@ class Refpoints {
 
     // Print info about the closest refpoint to the search point
     printClosest(searchPoint) {
-        console.log("\n-------- Closest Point to " + searchPoint.lat.toFixed(8) + ", " +
-            searchPoint.lon.toFixed(8) + " --------");
-        console.log("Point ID: " + searchPoint.closest.id);
-        console.log("Route and Direction: " + searchPoint.closest.name);
-        console.log("Milepost: " + searchPoint.closest.mm);
-        console.log("Heading: " + searchPoint.closest.heading);
-        console.log("Distance: " + searchPoint.closest.dist.toFixed(2) + " miles");
-        console.log("Lat, Lon: " + searchPoint.closest.lat + ", " + searchPoint.closest.lon);
+        let str = "-------- Closest Point to GPS location --------";
+        str += "<br/>Point ID: " + searchPoint.closest.id;
+        str += "<br/>Route and Direction: " + searchPoint.closest.name;
+        str += "<br/>Milepost: " + searchPoint.closest.mm;
+        str += "<br/>Heading: " + searchPoint.closest.heading;
+        str += "<br/>Distance: " + searchPoint.closest.dist.toFixed(2) + " miles";
+        str += "<br/>Lat, Lon: " + searchPoint.closest.lat + ", " + searchPoint.closest.lon;
+        return str;
     }
 
     // Simple and fast distance function (c = sqrt(a^2 + b^2)) using the Pythagorean theorem
@@ -111,18 +95,17 @@ class Refpoints {
     }
 }
 
-console.log("Initializing...");
-// Get the initialization start time
-var start1 = dayjs();
-
-const file = fs.createReadStream('data.csv'); // Create the file
 var count = 0; // Cache the running count
 refpoints = []; // Store the parsed points in here
 
+let CSVURL = (production) ? "https://bscholer.github.io/jrtp-challenge/data.csv" : "http://127.0.0.1:8081/jrtp-challenge/data.csv";
+
 // Parse the CSV file
-Papa.parse(file, {
+Papa.parse(CSVURL, {
     header: true, // The CSV file has a header
     dynamicTyping: true, // Makes my life a little easier
+    download: true,
+    // worker: true,
     step: function (result) {
         // Add the point to the array and increment the count.
         refpoints.push(result.data);
@@ -131,90 +114,30 @@ Papa.parse(file, {
     complete: function (results, file) { // For some reason, the results object does not behave as expected, hence the refpoints array.
         let refPointsObj = new Refpoints(refpoints);
 
-        console.log("Ready! Initialization took " + dayjs().diff(start1, "ms") + "ms for " + refPointsObj.refpointsArr.length + " points");
+        if (navigator.geolocation) {
+            let findClosestToGPS = function () {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    // Parse the lat and lon to floats
+                    lat = position.coords.latitude;
+                    lon = position.coords.longitude;
 
-        console.log("\n-------- MENU --------");
-        rl.question("1) Manually input search points\n2) Speed test (random search points)\nOption: ", (input) => {
-            switch (input) {
-                case "1":
-                    rl.question("Search point lat: ", (lat) => {
-                        rl.question("Search point lon: ", (lon) => {
-                            // Parse the lat and lon to floats
-                            lat = parseFloat(lat);
-                            lon = parseFloat(lon);
+                    // Make a new search point
+                    let searchPoint = {lat: lat, lon: lon};
+                    console.log(searchPoint);
 
-                            // Get the start time
-                            let startTime = dayjs();
+                    // Find the closest reference point to the given search point
+                    refPointsObj.findClosest(searchPoint);
 
-                            // Make a new search point
-                            let searchPoint = {lat: lat, lon: lon};
-
-                            // Find the closest reference point to the given search point
-                            refPointsObj.findClosest(searchPoint);
-
-                            // Stop the clock
-                            let time = dayjs().diff(startTime, 'ms');
-
-                            // Print the closest point
-                            refPointsObj.printClosest(searchPoint);
-
-                            // Print stats
-                            stats(time, 1);
-
-                            // Eww, the stream was still open??
-                            rl.close();
-                        })
-                    })
-
-                    break;
-                case "2":
-                    rl.question("Number of random points to generate in Indiana: ", (num) => {
-                        // Parse the input to an int
-                        let n = parseInt(num);
-
-                        // Generate n random points to search for
-                        let searchPoints = [];
-                        for (let i = 0; i < n; i++) {
-                            searchPoints.push({
-                                lat: getRandNum(MIN_LAT, MAX_LAT),
-                                lon: getRandNum(MIN_LON, MAX_LON)
-                            })
-                        }
-
-                        console.log("Searching for closest neighbor of " + searchPoints.length + " points");
-
-                        // Get the start time
-                        let startTime = dayjs();
-
-                        // Brute force search O(n) :/
-                        for (let searchPoint of searchPoints) {
-                            // Find the closest reference point to the given search point
-                            refPointsObj.findClosest(searchPoint);
-                        }
-
-                        // Stop the clock
-                        let time = dayjs().diff(startTime, 'ms');
-                        // Print pretty stats
-                        stats(time, n);
-
-                        // Eww, the stream was still open??
-                        rl.close();
-                    });
-                    break;
+                    // Print the closest point
+                    let str = refPointsObj.printClosest(searchPoint);
+                    $("#output").html(str);
+                })
             }
-        });
+            let x = setInterval(findClosestToGPS, 5000)
+        } else {
+            alert("Sorry, you're browser isn't supported.");
+        }
+
+
     }
 });
-
-// Print some stats
-function stats(time, n) {
-    console.log("\n-------- STATISTICS --------");
-    console.log("Runtime for " + n + " point(s): " + time + "ms");
-    console.log("Speed: " + Math.round(n / (time / 1000)) + " Hz");
-}
-
-// Used for generating random points
-function getRandNum(min, max) {
-    return Math.random() * (max - min) + min;
-}
-
