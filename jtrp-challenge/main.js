@@ -98,7 +98,7 @@ class Refpoints {
 var count = 0; // Cache the running count
 refpoints = []; // Store the parsed points in here
 
-let CSVURL = (production) ? "https://bscholer.github.io/jrtp-challenge/data.csv" : "http://127.0.0.1:8081/jrtp-challenge/data.csv";
+let CSVURL = (production) ? "https://bscholer.github.io/jtrp-challenge/data.csv" : "http://127.0.0.1:8081/jtrp-challenge/data.csv";
 
 // Parse the CSV file
 Papa.parse(CSVURL, {
