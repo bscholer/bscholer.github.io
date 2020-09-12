@@ -133,7 +133,7 @@ Papa.parse(CSVURL, {
                     $("#output").html(str);
                 })
             }
-            let x = setInterval(findClosestToGPS, 5000)
+            let x = setInterval(findClosestToGPS, 1000)
         } else {
             alert("Sorry, you're browser isn't supported.");
         }
