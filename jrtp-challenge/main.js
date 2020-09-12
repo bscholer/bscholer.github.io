@@ -15,7 +15,7 @@ significantly less performant. To combat this, I ended up using the simple dista
 and only use the function that returns miles for the user output.
  */
 
-const production = false;
+const production = true;
 
 class Refpoints {
     // Loading in the points takes a bit of time and is done in a different thread, so we need a callback.
