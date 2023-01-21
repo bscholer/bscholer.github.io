@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Help Fix the Signal!</title>
+    <link rel="stylesheet" href="index.css">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-V1XR1DWJR5"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-V1XR1DWJR5');
+    </script>
+</head>
+<body>
+<h1>Let's get this signal fixed!</h1>
+<h3>Keystone @ Woodfield Crossing Blvd</h3>
+<img style="object-fit: contain; width: 100%" src="img.png">
+
+<p>To get this signal fixed, we need <b>you</b> to complain!</p>
+<p>You can do this on RequestIndy by following the instructions below (<5 minutes).</p>
+<p><b>Please don't do this while driving!</b></p>
+
+<ol>
+    <li>
+        <button onclick="onCopyMessage()">Click here</button>
+        to copy the following message:
+        <p id="message-container"></p>
+    </li>
+    <li>Remember the following: <b>8401 N Keystone</b></li>
+    <li>Go to <a href="https://request.indy.gov/citizen/request/TRAFFICS/location">RequestIndy</a></li>
+    <li>Enter the address, and select the first option, <b>8401 N Keystone Ave</b>
+    </li>
+    <li>Click <b>NEXT</b></li>
+    <li>Select <b>Maintenance on an existing traffic signal</b>
+    <li>Select <b>Traffic light</b>
+    <li>Select the <u>last option</u>, <b>Synchronization/Timing is off</b>
+    <li>Select your direction of travel (or unknown if you aren't sure)
+    <li>Paste the message into <i>Additional Information</i></li>
+    <li>Click <b>NEXT</b></li>
+    <li>Enter your name, and email/phone in the form</li>
+    <li>Click <b>NEXT</b></li>
+    <li>Click <b>SUBMIT</b></li>
+</ol>
+
+Thanks for your help!
+
+</body>
+<script>
+    const message = 'Despite having loop sensors, this signal seems to run the mainline left phase for far ' +
+        'longer than necessary in most cases, especially during off-peak hours ' +
+        '(30-45s of the 120s cycle in testing). This results in significant queuing along Keystone, leading to ' +
+        'unnecessary delay. It seems that the timing of this signal is either outdated, or the loop sensors ' +
+        'have malfunctioned. Retiming this signal would significantly improve ' +
+        'travel times along this essential corridor.'
+
+    document.getElementById('message-container').innerText = message
+
+    const onCopyMessage = () => {
+        const el = document.createElement('textarea')
+        el.value = message
+        document.body.appendChild(el)
+        el.select()
+        document.execCommand('copy')
+        document.body.removeChild(el)
+        document.querySelector('button').innerText = 'Message copied!'
+    };
+</script>
+</html>
