@@ -74,6 +74,10 @@ function wireScene(s) {
   }
   root.classList.add('scene-ready');
 
+  const measureBtn = document.querySelector('.measure-btn');
+  measureBtn.hidden = false;
+  measureBtn.addEventListener('click', () => s.toggleMeasure());
+
   const onScroll = () => s.setScroll(Math.min(1, scrollY / (innerHeight * 1.1)));
   addEventListener('scroll', onScroll, { passive: true });
   onScroll();
@@ -99,6 +103,10 @@ createScene(canvas, {
   onCursor: showCursor,
   onSun: showSun,
   onSurvey: showSurvey,
+  onMeasureMode(on) {
+    root.classList.toggle('is-measuring', on);
+    document.querySelector('.measure-btn').setAttribute('aria-pressed', String(on));
+  },
 }).then(wireScene).catch((err) => {
   // No WebGL or no terrain data: the page still reads fine on the plain background.
   console.warn('Terrain disabled:', err);

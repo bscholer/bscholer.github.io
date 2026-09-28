@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Fetch Smith Rock elevation, imagery, and river data into public/terrain.
 
-Sources: USGS 3DEP (elevation, NAVD88), USGS NAIP (imagery), USGS NHD (river).
+Sources: USGS 3DEP (elevation, NAVD88), Oregon OSIP 2024 (1 ft imagery), USGS NHD (river).
 All grids are NAD83 / UTM 10N. Needs PROJ (cct) with network grids on, plus numpy and Pillow.
 """
 import io
 import json
 import os
+import ssl
 import subprocess
 import time
 import urllib.error
@@ -26,15 +27,18 @@ GEOID_N = ('+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad '
            '+step +proj=vgridshift +grids=us_noaa_g2018u0.tif +multiplier=1 '
            '+step +proj=unitconvert +xy_in=rad +xy_out=deg')
 CENTER_LONLAT = (-121.1416, 44.3688)
-EXTENT_M = 3600
-GRID = 1025
-ORTHO_PX = 2048
-ORTHO_OUT_PX = 1536
-PREVIEW_PX = 512
+EXTENT_M = 2600
+GRID = 2049
+COARSE_STEP = 4
+ORTHO_PX = 4096
+ORTHO_SIZES = {'ortho-preview.webp': (512, 60), 'ortho-2k.webp': (2048, 62), 'ortho-4k.webp': (4096, 60)}
+OSIP = 'https://imagery.oregonexplorer.info/arcgis/rest/services/OSIP_2024/OSIP_2024_WM/ImageServer/exportImage'
+# imagery.oregonexplorer.info serves an expired certificate. The imagery is public and checked by eye.
+UNVERIFIED_HOSTS = {'imagery.oregonexplorer.info'}
 
 LANDMARKS = [
     ('Monkey Face', -121.1441, 44.3707, 'peak'),
-    ('Misery Ridge', -121.1394, 44.3683, 'peak'),
+    ('Misery Ridge', -121.141079, 44.36929, 'peak'),
     ('Smith Rock', -121.14704, 44.36312, 'peak'),
 ]
 
@@ -59,9 +63,11 @@ def to_geo(points):
 
 def fetch(url, params, tries=4):
     full = f'{url}?{urllib.parse.urlencode(params)}'
+    host = urllib.parse.urlparse(url).hostname
+    context = ssl._create_unverified_context() if host in UNVERIFIED_HOSTS else None
     for attempt in range(tries):
         try:
-            with urllib.request.urlopen(full, timeout=180) as r:
+            with urllib.request.urlopen(full, timeout=300, context=context) as r:
                 return r.read()
         except urllib.error.HTTPError as err:
             # The USGS image servers return 504 under load. A retry usually works.
@@ -103,15 +109,17 @@ def main():
     dem = np.array(Image.open(tmp), dtype=np.float32)
     tmp.unlink()
     assert dem.shape == (GRID, GRID), dem.shape
-    (OUT / 'smith-rock.bin').write_bytes(encode_heights(np.round(dem * 10)))
+    dm = np.round(dem * 10)
+    (OUT / 'smith-rock.bin').write_bytes(encode_heights(dm))
+    (OUT / 'smith-rock-coarse.bin').write_bytes(encode_heights(dm[::COARSE_STEP, ::COARSE_STEP]))
 
-    img = fetch('https://imagery.nationalmap.gov/arcgis/rest/services/USGSNAIPImagery/ImageServer/exportImage', {
+    img = fetch(OSIP, {
         'bbox': f'{cx - half},{cy - half},{cx + half},{cy + half}', 'bboxSR': EPSG, 'imageSR': EPSG,
         'size': f'{ORTHO_PX},{ORTHO_PX}', 'format': 'jpg', 'f': 'image',
     })
     photo = Image.open(io.BytesIO(img)).convert('RGB')
-    photo.resize((ORTHO_OUT_PX,) * 2, Image.LANCZOS).save(OUT / 'ortho.webp', quality=62, method=6)
-    photo.resize((PREVIEW_PX,) * 2, Image.LANCZOS).save(OUT / 'ortho-preview.webp', quality=60, method=6)
+    for name, (px, quality) in ORTHO_SIZES.items():
+        photo.resize((px, px), Image.LANCZOS).save(OUT / name, quality=quality, method=6)
 
     lon_min, lat_min, lon_max, lat_max = -121.2, 44.33, -121.08, 44.41
     nhd = json.loads(fetch('https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query', {
@@ -136,8 +144,8 @@ def main():
     labels = []
     for name, lon, lat, kind in LANDMARKS:
         x, z = local(lon, lat)
-        # Snap summits to the highest cell within 40 m, since the published points are approximate.
-        r = int(40 / cell)
+        # Snap summits to the highest cell within 15 m, since the published points are approximate.
+        r = int(15 / cell)
         i0, j0 = int(round((x + half) / cell)), int(round((z + half) / cell))
         win = dem[j0 - r:j0 + r + 1, i0 - r:i0 + r + 1]
         dj, di = np.unravel_index(np.argmax(win), win.shape)
@@ -149,11 +157,12 @@ def main():
     corners = to_geo([(cx - half, cy + half), (cx + half, cy + half), (cx - half, cy - half), (cx + half, cy - half)])
     geoid = [round(h, 3) for _, _, h in cct(GEOID_N, [(lon, lat, 0) for lon, lat in corners])]
     meta = {
-        'source': 'USGS 3DEP, NAIP, NHD',
+        'source': 'USGS 3DEP, Oregon OSIP 2024, USGS NHD',
         'epsg': EPSG,
         'center': [round(cx, 2), round(cy, 2)],
         'extent': EXTENT_M,
         'grid': GRID,
+        'coarseGrid': (GRID - 1) // COARSE_STEP + 1,
         'minElev': round(float(dem.min()), 1),
         'maxElev': round(float(dem.max()), 1),
         'crs': 'NAD83 / UTM zone 10N',

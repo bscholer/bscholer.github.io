@@ -65,9 +65,11 @@ function buildCameraPoses() {
   return mesh;
 }
 
-export async function createScene(canvas, { reducedMotion, labelLayer, onCursor, onSun, onSurvey }) {
+export async function createScene(canvas, { reducedMotion, labelLayer, onCursor, onSun, onSurvey, onMeasureMode }) {
   const terrain = await loadTerrain();
   const mobile = matchMedia('(max-width: 720px)').matches;
+  // About 1024 mesh cells across on desktop and 256 on phones. Fine detail comes from the height texture.
+  const meshStep = (n) => Math.max(1, Math.round((n - 1) / (mobile ? 256 : 1024)));
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio, mobile ? 1.5 : 2));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -134,7 +136,7 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
   };
 
   const ground = new THREE.Mesh(
-    buildTerrainGeometry(terrain, mobile ? 4 : 2),
+    buildTerrainGeometry(terrain, meshStep(terrain.n)),
     new THREE.ShaderMaterial({ uniforms, vertexShader: terrainVertex, fragmentShader: terrainFragment }),
   );
   scene.add(ground);
@@ -158,7 +160,7 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
   scene.add(hemi, sunLight);
 
   const drone = buildDrone();
-  drone.scale.setScalar(2.6);
+  drone.scale.setScalar(2.0);
   scene.add(drone);
 
   const frustumGeo = new THREE.BufferGeometry();
@@ -178,7 +180,7 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     let best = null;
     for (const path of terrain.meta.river) {
       for (const [xm, zm] of path) {
-        const d = Math.hypot(xm + 780, zm + 380);
+        const d = Math.hypot(xm + 60, zm - 420);
         if (!best || d < best.d) best = { d, xm, zm };
       }
     }
@@ -223,7 +225,7 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
   controls.touches = { ONE: null, TWO: THREE.TOUCH.DOLLY_ROTATE };
   canvas.style.touchAction = 'pan-y';
 
-  const home = { target: new THREE.Vector3(-12, 8, -6), offset: new THREE.Vector3(115, 78, 120) };
+  const home = { target: new THREE.Vector3(-14, 8, 4), offset: new THREE.Vector3(135, 92, 140) };
   const homeScale = mobile ? 1.45 : 1;
   controls.target.copy(home.target);
   rig.position.copy(home.target).addScaledVector(home.offset, homeScale);
@@ -307,25 +309,30 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
   function runMeasure() {
     const [a, b] = measurePts;
     const pos = measureLine.geometry.attributes.position;
-    let surface = 0;
-    let prev = null;
     for (let i = 0; i < MEASURE_SAMPLES; i++) {
       const t = i / (MEASURE_SAMPLES - 1);
       const x = a.x + (b.x - a.x) * t;
       const z = a.z + (b.z - a.z) * t;
       pos.setXYZ(i, x, terrain.heightAt(x, z) + 0.25, z);
-      // Real metres, without the display exaggeration.
-      const cur = { x: x * terrain.metersPerUnit, z: z * terrain.metersPerUnit, h: terrain.elevationAt(x, z) };
-      if (prev) surface += Math.hypot(cur.x - prev.x, cur.z - prev.z, cur.h - prev.h);
-      prev = cur;
+    }
+    // 3D length along the ground: one step per lidar cell, in real metres without the exaggeration.
+    const horiz = Math.hypot(b.x - a.x, b.z - a.z) * terrain.metersPerUnit;
+    const cellM = terrain.meta.extent / (terrain.n - 1);
+    const steps = Math.max(1, Math.ceil(horiz / cellM));
+    let surface = 0;
+    let prevH = terrain.elevationAt(a.x, a.z);
+    for (let i = 1; i <= steps; i++) {
+      const t = i / steps;
+      const h = terrain.elevationAt(a.x + (b.x - a.x) * t, a.z + (b.z - a.z) * t);
+      surface += Math.hypot(horiz / steps, h - prevH);
+      prevH = h;
     }
     pos.needsUpdate = true;
     measureLine.geometry.computeBoundingSphere();
     measureLine.visible = true;
-    const horiz = Math.hypot(b.x - a.x, b.z - a.z) * terrain.metersPerUnit;
     const dh = terrain.elevationAt(b.x, b.z) - terrain.elevationAt(a.x, a.z);
-    const slope = Math.hypot(horiz, dh);
-    measureEl.textContent = `surface ${fmtM(surface)}\nslope   ${fmtM(slope)}\nhoriz   ${fmtM(horiz)}\nΔh      ${dh >= 0 ? '+' : '−'}${fmtM(Math.abs(dh))}`;
+    const hypot = Math.hypot(horiz, dh);
+    measureEl.textContent = `3d     ${fmtM(surface)}\nhypot  ${fmtM(hypot)}\nhoriz  ${fmtM(horiz)}\nΔh     ${dh >= 0 ? '+' : '−'}${fmtM(Math.abs(dh))}`;
     measureMid = new THREE.Vector3((a.x + b.x) / 2, 0, (a.z + b.z) / 2);
     measureMid.y = terrain.heightAt(measureMid.x, measureMid.z);
     measureEl.classList.remove('is-hidden');
@@ -342,8 +349,10 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
 
   let downAt = null;
   canvas.addEventListener('pointerdown', (e) => { downAt = { x: e.clientX, y: e.clientY }; });
+  // Measure mode (the Measure button) or shift-click. A drag is an orbit, not a click.
+  let measureMode = false;
   canvas.addEventListener('pointerup', (e) => {
-    if (!e.shiftKey || !downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 4) return;
+    if (!(measureMode || e.shiftKey) || !downAt || Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > 6) return;
     const rect = canvas.getBoundingClientRect();
     const hit = pick(new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1));
     if (!hit) return;
@@ -353,9 +362,23 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     m.position.copy(hit);
     m.visible = true;
     if (measurePts.length === 2) runMeasure();
+    else {
+      measureEl.textContent = 'Click a second point';
+      measureMid = hit.clone();
+      measureEl.classList.remove('is-hidden');
+    }
     schedule();
   });
-  addEventListener('keydown', (e) => { if (e.key === 'Escape') clearMeasure(); });
+  addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    clearMeasure();
+    setMeasureMode(false);
+  });
+  function setMeasureMode(on) {
+    measureMode = on;
+    if (on) controls.autoRotate = false;
+    onMeasureMode?.(on);
+  }
 
   let night = false;
   let sunInfo = null;
@@ -606,15 +629,35 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     if (!reducedMotion || cameraMoving) schedule();
   }
   schedule();
-  const loadFullOrtho = () => {
-    const full = orthoTexture('/terrain/ortho.webp', () => {
-      uniforms.uOrtho.value = full;
-      ortho.dispose();
-      schedule();
+
+  // After the first frame: full-resolution heights, then sharper imagery.
+  function loadOrtho(url) {
+    return new Promise((resolve) => {
+      const tex = orthoTexture(url, () => {
+        const old = uniforms.uOrtho.value;
+        uniforms.uOrtho.value = tex;
+        old.dispose();
+        schedule();
+        resolve();
+      });
     });
-  };
-  if ('requestIdleCallback' in window) requestIdleCallback(loadFullOrtho, { timeout: 1500 });
-  else setTimeout(loadFullOrtho, 300);
+  }
+  async function refine() {
+    await terrain.refine();
+    const oldGeo = ground.geometry;
+    ground.geometry = buildTerrainGeometry(terrain, meshStep(terrain.n));
+    oldGeo.dispose();
+    const oldTex = uniforms.uHeight.value;
+    uniforms.uHeight.value = buildHeightTexture(terrain);
+    oldTex.dispose();
+    uniforms.uTexel.value = 1 / (terrain.n - 1);
+    for (const label of labels) label.pos.y = terrain.heightAt(label.pos.x, label.pos.z);
+    schedule();
+    await loadOrtho('/terrain/ortho-2k.webp');
+    if (!mobile && renderer.capabilities.maxTextureSize >= 4096) await loadOrtho('/terrain/ortho-4k.webp');
+  }
+  const idle = (fn) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 800 }) : setTimeout(fn, 100));
+  idle(() => refine().catch((err) => console.warn('Terrain refine failed:', err)));
 
   return {
     start() {
@@ -641,6 +684,10 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
       schedule();
     },
     applyPalette,
+    toggleMeasure() {
+      if (measureMode) clearMeasure();
+      setMeasureMode(!measureMode);
+    },
     goHome() {
       flyTo(home.target.clone(), home.target.clone().addScaledVector(home.offset, homeScale));
     },

@@ -274,6 +274,20 @@ h1 {
   margin: 0 0 10px;
   color: var(--muted);
 }
+.legend__head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.legend__head h2 { margin: 0; }
+.measure-btn {
+  font: 600 10px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: none;
+  border: 1px solid var(--accent);
+  padding: 6px 9px;
+  cursor: pointer;
+}
+.measure-btn[aria-pressed="true"] { color: var(--bg); background: var(--accent); }
+.is-measuring #terrain { cursor: crosshair; }
 .legend ul { list-style: none; padding: 0; margin: 0 0 12px; }
 .legend li { display: flex; align-items: center; gap: 10px; }
 .sw { display: inline-block; width: 22px; flex: none; }

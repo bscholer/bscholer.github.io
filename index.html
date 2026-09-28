@@ -12,8 +12,8 @@
   <meta name="theme-color" content="#0c0f14" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="preload" href="/terrain/meta.json" as="fetch" crossorigin>
-  <link rel="preload" href="/terrain/smith-rock.bin" as="fetch" crossorigin fetchpriority="high">
-  <link rel="preload" href="/terrain/ortho-preview.webp" as="image">
+  <link rel="preload" href="/terrain/smith-rock-coarse.bin" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="/terrain/ortho-preview.webp" as="image" crossorigin>
   <script>
     try {
       const saved = localStorage.getItem('theme');
@@ -63,7 +63,10 @@
       </div>
 
       <aside class="legend" aria-label="Map legend">
-        <h2>Legend</h2>
+        <div class="legend__head">
+          <h2>Legend</h2>
+          <button class="measure-btn" type="button" aria-pressed="false" hidden>Measure</button>
+        </div>
         <ul>
           <li><i class="sw sw--contour"></i>Contour, 10 m</li>
           <li><i class="sw sw--index"></i>Index contour, 50 m</li>
@@ -79,13 +82,13 @@
         <p class="survey-line"></p>
         <p class="sun-line"></p>
         <p class="fineprint">
-          Smith Rock State Park, Oregon. USGS 3DEP lidar and NAIP imagery,
+          Smith Rock State Park, Oregon. USGS 3DEP lidar and Oregon OSIP 2024 imagery,
           NAD83 / UTM 10N, heights NAVD88 with GEOID18. Built with a PROJ pipeline.
         </p>
       </aside>
 
       <p class="controls-hint">
-        <span>Drag to orbit</span><span>Right-drag to pan</span><span>Ctrl + scroll to zoom</span><span>Double-click to fly</span><span>Shift-click twice to measure</span>
+        <span>Drag to orbit</span><span>Right-drag to pan</span><span>Ctrl + scroll to zoom</span><span>Double-click to fly</span><span>Measure: two clicks, Esc to stop</span>
       </p>
       <a class="scroll-cue" href="#now">Scroll to view from above</a>
     </section>
@@ -100,7 +103,7 @@
         </p>
         <p>
           I also rebuilt its measurement system: lengths, areas, volumes, and cut/fill,
-          computed over triangulated surfaces. Try it on the map above: shift-click two points.
+          computed over triangulated surfaces. Try it on the map above with the Measure button.
         </p>
       </div>
     </section>
@@ -203,7 +206,7 @@
         </li>
       </ol>
       <p class="sheet__note">
-        This site runs on a k3s cluster in my homelab.
+        This site runs on a k3s cluster under my desk.
       </p>
     </section>
 
@@ -221,7 +224,7 @@
 
     <footer class="sheet sheet--footer">
       <p>© <span class="year"></span> Ben Scholer</p>
-      <p class="footer__coords">44.3683° N, 121.1394° W · Misery Ridge</p>
+      <p class="footer__coords">44.3693° N, 121.1411° W · Misery Ridge</p>
     </footer>
   </main>
 </body>

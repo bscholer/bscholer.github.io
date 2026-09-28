@@ -186,6 +186,20 @@ export const terrainFragment = /* glsl */ `
       vec3 lit = photo * (uAmbient * sky + uSunColor * direct) * 1.25;
       lit = mix(lit, photo * (0.55 + 0.6 * direct), 0.35 * (1.0 - uNight));
 
+      // Nadir photos carry nothing on vertical walls, so cliffs get banded welded tuff instead.
+      float steep = smoothstep(0.45, 0.8, 1.0 - n.y);
+      if (steep > 0.0) {
+        vec3 an = abs(n) + 1e-3;
+        float grain = (vnoise(vWorld.zy * vec2(1.2, 3.5)) * an.x + vnoise(vWorld.xy * vec2(1.2, 3.5)) * an.z) / (an.x + an.z);
+        float fine = (vnoise(vWorld.zy * 9.0) * an.x + vnoise(vWorld.xy * 9.0) * an.z) / (an.x + an.z);
+        float strata = 0.5 + 0.5 * sin(vWorld.y * 2.6 + grain * 3.0);
+        vec3 tuff = mix(vec3(0.8, 0.6, 0.42), vec3(0.6, 0.4, 0.28), strata * 0.55 + grain * 0.3 + fine * 0.15);
+        vec3 bounce = uAmbient * vec3(1.1, 0.95, 0.8);
+        vec3 rock = tuff * (bounce * (0.6 + 0.4 * sky) + uSunColor * direct) * 1.3;
+        rock = mix(rock, rock * vec3(0.5, 0.56, 0.7), uNight);
+        lit = mix(lit, rock, steep * 0.8);
+      }
+
       if (water > 0.01) {
         vec2 flow = vWorld.xz * 1.8 + vec2(uTime * 0.25, uTime * 0.18);
         vec2 ripple = vec2(vnoise(flow) - 0.5, vnoise(flow + 17.3) - 0.5) * 0.35;

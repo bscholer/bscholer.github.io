@@ -26,20 +26,24 @@ function decodeHeights(bytes, n, minElev) {
   return heights;
 }
 
+async function fetchBytes(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`terrain fetch ${r.status}`);
+  return new Uint8Array(await r.arrayBuffer());
+}
+
+// Loads the coarse grid first. refine() swaps in the full-resolution grid later.
 export async function loadTerrain(base = '/terrain') {
-  const [meta, buffer] = await Promise.all([
+  const [meta, coarse] = await Promise.all([
     fetch(`${base}/meta.json`).then((r) => r.json()),
-    fetch(`${base}/smith-rock.bin`).then((r) => {
-      if (!r.ok) throw new Error(`terrain fetch ${r.status}`);
-      return r.arrayBuffer();
-    }),
+    fetchBytes(`${base}/smith-rock-coarse.bin`),
   ]);
-  const n = meta.grid;
   const metersPerUnit = meta.extent / SIZE;
   const elevToWorld = EXAGGERATION / metersPerUnit;
-  const heights = decodeHeights(new Uint8Array(buffer), n, meta.minElev);
+  let n = meta.coarseGrid;
+  let heights = decodeHeights(coarse, n, meta.minElev);
+  let cell = SIZE / (n - 1);
 
-  const cell = SIZE / (n - 1);
   function heightMeters(x, z) {
     const fx = THREE.MathUtils.clamp((x + SIZE / 2) / cell, 0, n - 1.001);
     const fz = THREE.MathUtils.clamp((z + SIZE / 2) / cell, 0, n - 1.001);
@@ -59,8 +63,15 @@ export async function loadTerrain(base = '/terrain') {
 
   return {
     meta,
-    n,
-    heights,
+    get n() { return n; },
+    get heights() { return heights; },
+    get refined() { return n === meta.grid; },
+    async refine() {
+      const full = decodeHeights(await fetchBytes(`${base}/smith-rock.bin`), meta.grid, meta.minElev);
+      n = meta.grid;
+      heights = full;
+      cell = SIZE / (n - 1);
+    },
     elevToWorld,
     metersPerUnit,
     heightAt: (x, z) => heightMeters(x, z) * elevToWorld,
