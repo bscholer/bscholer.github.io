@@ -27,13 +27,15 @@
   <script type="module" src="/src/main.js"></script>
 </head>
 <body>
-  <canvas id="terrain" aria-hidden="true"></canvas>
+  <canvas id="terrain" aria-label="3D map of Smith Rock State Park. Drag to orbit."></canvas>
+  <div class="labels" aria-hidden="true"></div>
+  <div class="cursor-tip" aria-hidden="true"></div>
 
   <div class="neatline" aria-hidden="true">
-    <span class="tick tl">44°05′N<br>121°47′W</span>
-    <span class="tick tr">44°05′N<br>121°34′W</span>
-    <span class="tick bl">43°56′N<br>121°47′W</span>
-    <span class="tick br">43°56′N<br>121°34′W</span>
+    <span class="tick tl"></span>
+    <span class="tick tr"></span>
+    <span class="tick bl"></span>
+    <span class="tick br"></span>
   </div>
 
   <button class="theme-toggle" type="button" aria-label="Switch between day and night">
@@ -60,18 +62,28 @@
       <aside class="legend" aria-label="Map legend">
         <h2>Legend</h2>
         <ul>
-          <li><i class="sw sw--contour"></i>Contour, 40 m</li>
-          <li><i class="sw sw--index"></i>Index contour, 200 m</li>
+          <li><i class="sw sw--contour"></i>Contour, 10 m</li>
+          <li><i class="sw sw--index"></i>Index contour, 50 m</li>
+          <li><i class="sw sw--water"></i>Crooked River</li>
           <li><i class="sw sw--footprint"></i>Camera footprint</li>
+          <li><i class="sw sw--pose"></i>Camera pose</li>
           <li><i class="sw sw--ortho"></i>Reconstructed orthomosaic</li>
         </ul>
         <p class="readout" aria-live="off">
           <span class="readout__hint">Point at the terrain</span>
           <span class="readout__value"></span>
         </p>
-        <p class="fineprint">Procedural terrain. Real-ish coordinates.</p>
+        <p class="survey-line"></p>
+        <p class="sun-line"></p>
+        <p class="fineprint">
+          Smith Rock State Park, Oregon. USGS 3DEP lidar and NAIP imagery,
+          NAD83 / UTM 10N, heights NAVD88 with GEOID18. Built with a PROJ pipeline.
+        </p>
       </aside>
 
+      <p class="controls-hint">
+        <span>Drag to orbit</span><span>Right-drag to pan</span><span>Ctrl + scroll to zoom</span><span>Double-click to fly</span><span>Shift-click twice to measure</span>
+      </p>
       <a class="scroll-cue" href="#now">Scroll to view from above</a>
     </section>
 
@@ -80,8 +92,12 @@
       <div class="sheet__body">
         <p>
           I work across DroneDeploy's processing pipeline, the tile servers behind its maps,
-          and the web app that shows them. Most days that means GDAL, coordinate systems, and
+          and the web app that shows them. Most days that means PROJ pipelines, datums, and
           making big rasters load fast.
+        </p>
+        <p>
+          I also rebuilt its measurement system: lengths, areas, volumes, and cut/fill,
+          computed over triangulated surfaces. Try it on the map above: shift-click two points.
         </p>
         <p>
           Before that I built GIS and traffic-data tools for state DOTs at
@@ -133,7 +149,7 @@
 
     <footer class="sheet sheet--footer">
       <p>© <span class="year"></span> Ben Scholer</p>
-      <p class="footer__coords">44.0582° N, 121.3153° W</p>
+      <p class="footer__coords">44.3683° N, 121.1394° W · Misery Ridge</p>
     </footer>
   </main>
 </body>
