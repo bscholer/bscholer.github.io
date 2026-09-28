@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Off the map</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <style>
+    :root { --bg: #efe8d8; --ink: #1f1a14; --muted: #6b5f4f; --accent: #d9480f; --contour: #c29a6f; }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg: #0c0f14; --ink: #ece5d6; --muted: #97a0aa; --accent: #ff8a3d; --contour: #334050; }
+    }
+    body {
+      margin: 0; min-height: 100svh; display: grid; place-items: center; padding: 16px;
+      background: var(--bg); color: var(--ink); font: 16px/1.6 ui-monospace, 'IBM Plex Mono', monospace;
+      background-image: repeating-radial-gradient(circle at 70% 40%, transparent 0 22px, var(--contour) 22px 23px);
+    }
+    main { background: var(--bg); padding: 28px 32px; border: 1px solid var(--ink); max-width: 28rem; }
+    h1 { font: 600 12px/1 inherit; letter-spacing: .18em; text-transform: uppercase; color: var(--accent); margin: 0 0 12px; }
+    p { margin: 0 0 12px; }
+    a { color: inherit; text-decoration-color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>404 · Off the map</h1>
+    <p>No survey data exists at this location.</p>
+    <p><a href="/">Return to base</a></p>
+  </main>
+</body>
+</html>
