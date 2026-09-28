@@ -31,12 +31,7 @@ jobs:
           check /halloween-handouts/ 200
           check /signal-retime/ 200
           check /personal/ 301
-          check /terrain/meta.json 200
-          check /terrain/smith-rock.bin 200
-          check /terrain/smith-rock-coarse.bin 200
-          check /terrain/ortho-preview.webp 200
-          check /terrain/ortho-2k.webp 200
-          check /terrain/ortho-4k.webp 200
+          for f in $(curl -fs localhost:8080/ | grep -oE '/assets/[^"]+\.(bin|webp)'); do check "$f" 200; done
           check /no-such-page 404
           curl -fs localhost:8080/ | grep -q 'src="/assets/main-'
           curl -s localhost:8080/no-such-page | grep -q 'Off the map'

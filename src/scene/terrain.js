@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { terrainFiles } from '../terrain/index.js';
 
 // World units across the terrain. The real extent comes from meta.json.
 export const SIZE = 320;
@@ -33,11 +34,10 @@ async function fetchBytes(url) {
 }
 
 // Loads the coarse grid first. refine() swaps in the full-resolution grid later.
-export async function loadTerrain(base = '/terrain') {
-  const [meta, coarse] = await Promise.all([
-    fetch(`${base}/meta.json`).then((r) => r.json()),
-    fetchBytes(`${base}/smith-rock-coarse.bin`),
-  ]);
+export async function loadTerrain() {
+  const { meta } = terrainFiles;
+  const coarse = await fetchBytes(terrainFiles.coarseUrl);
+  if (coarse.length !== meta.coarseGrid * meta.coarseGrid * 2) throw new Error(`coarse grid is ${coarse.length} bytes`);
   const metersPerUnit = meta.extent / SIZE;
   const elevToWorld = EXAGGERATION / metersPerUnit;
   let n = meta.coarseGrid;
@@ -67,7 +67,9 @@ export async function loadTerrain(base = '/terrain') {
     get heights() { return heights; },
     get refined() { return n === meta.grid; },
     async refine() {
-      const full = decodeHeights(await fetchBytes(`${base}/smith-rock.bin`), meta.grid, meta.minElev);
+      const bytes = await fetchBytes(terrainFiles.fullUrl);
+      if (bytes.length !== meta.grid * meta.grid * 2) throw new Error(`height grid is ${bytes.length} bytes`);
+      const full = decodeHeights(bytes, meta.grid, meta.minElev);
       n = meta.grid;
       heights = full;
       cell = SIZE / (n - 1);

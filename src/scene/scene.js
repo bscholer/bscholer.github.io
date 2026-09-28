@@ -3,6 +3,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import {
   SIZE, loadTerrain, buildTerrainGeometry, buildHeightTexture, buildRiverTexture, rayHeightfield,
 } from './terrain.js';
+import { terrainFiles } from '../terrain/index.js';
 import { terrainVertex, terrainFragment, starVertex, starFragment } from './shaders.js';
 import { buildDrone, animateDrone } from './drone.js';
 import { sunPosition, directionFrom } from './sun.js';
@@ -97,7 +98,7 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     return tex;
   }
-  const ortho = orthoTexture('/terrain/ortho-preview.webp', () => schedule());
+  const ortho = orthoTexture(terrainFiles.previewUrl, () => schedule());
 
   const sunDir = new THREE.Vector3(0, 1, 0);
   const uniforms = {
@@ -653,8 +654,8 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     uniforms.uTexel.value = 1 / (terrain.n - 1);
     for (const label of labels) label.pos.y = terrain.heightAt(label.pos.x, label.pos.z);
     schedule();
-    await loadOrtho('/terrain/ortho-2k.webp');
-    if (!mobile && renderer.capabilities.maxTextureSize >= 4096) await loadOrtho('/terrain/ortho-4k.webp');
+    await loadOrtho(terrainFiles.ortho2kUrl);
+    if (!mobile && renderer.capabilities.maxTextureSize >= 4096) await loadOrtho(terrainFiles.ortho4kUrl);
   }
   const idle = (fn) => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 800 }) : setTimeout(fn, 100));
   idle(() => refine().catch((err) => console.warn('Terrain refine failed:', err)));

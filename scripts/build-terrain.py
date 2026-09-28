@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Fetch Smith Rock elevation, imagery, and river data into public/terrain.
+"""Fetch Smith Rock elevation, imagery, and river data into src/terrain.
 
 Sources: USGS 3DEP (elevation, NAVD88), Oregon OSIP 2024 (1 ft imagery), USGS NHD (river).
 All grids are NAD83 / UTM 10N. Needs PROJ (cct) with network grids on, plus numpy and Pillow.
@@ -18,7 +18,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-OUT = Path(__file__).resolve().parent.parent / 'public' / 'terrain'
+OUT = Path(__file__).resolve().parent.parent / 'src' / 'terrain'
 EPSG = 26910
 GEO_TO_UTM = '+proj=pipeline +step +proj=unitconvert +xy_in=deg +xy_out=rad +step +proj=utm +zone=10 +ellps=GRS80'
 UTM_TO_GEO = '+proj=pipeline +step +inv +proj=utm +zone=10 +ellps=GRS80 +step +proj=unitconvert +xy_in=rad +xy_out=deg'
