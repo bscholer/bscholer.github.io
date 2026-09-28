@@ -32,8 +32,9 @@ jobs:
           check /signal-retime/ 200
           check /personal/ 301
           check /terrain/meta.json 200
-          check /terrain/smith-rock.u16 200
-          check /terrain/ortho.jpg 200
+          check /terrain/smith-rock.bin 200
+          check /terrain/ortho.webp 200
+          check /terrain/ortho-preview.webp 200
           check /no-such-page 404
           curl -fs localhost:8080/ | grep -q 'src="/assets/main-'
           curl -s localhost:8080/no-such-page | grep -q 'Off the map'

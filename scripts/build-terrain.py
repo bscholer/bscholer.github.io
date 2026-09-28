@@ -29,6 +29,8 @@ CENTER_LONLAT = (-121.1416, 44.3688)
 EXTENT_M = 3600
 GRID = 1025
 ORTHO_PX = 2048
+ORTHO_OUT_PX = 1536
+PREVIEW_PX = 512
 
 LANDMARKS = [
     ('Monkey Face', -121.1441, 44.3707, 'peak'),
@@ -68,6 +70,21 @@ def fetch(url, params, tries=4):
             time.sleep(5 * (attempt + 1))
 
 
+def encode_heights(dm):
+    """Decimetre heights as residuals from a left + up - upleft predictor, zigzagged,
+    with low and high bytes in separate planes. Gzips to about 40 % of the raw grid."""
+    d = dm.astype(np.int32)
+    pred = np.zeros_like(d)
+    pred[0, 1:] = d[0, :-1]
+    pred[1:, 0] = d[:-1, 0]
+    pred[1:, 1:] = d[1:, :-1] + d[:-1, 1:] - d[:-1, :-1]
+    r = d - pred
+    z = (r << 1) ^ (r >> 31)
+    assert z.max() < 65536, z.max()
+    z = z.astype(np.uint16)
+    return (z & 0xFF).astype(np.uint8).tobytes() + (z >> 8).astype(np.uint8).tobytes()
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     (cx, cy), = to_utm([CENTER_LONLAT])
@@ -86,13 +103,15 @@ def main():
     dem = np.array(Image.open(tmp), dtype=np.float32)
     tmp.unlink()
     assert dem.shape == (GRID, GRID), dem.shape
-    (OUT / 'smith-rock.u16').write_bytes(np.round(dem * 10).astype('<u2').tobytes())
+    (OUT / 'smith-rock.bin').write_bytes(encode_heights(np.round(dem * 10)))
 
     img = fetch('https://imagery.nationalmap.gov/arcgis/rest/services/USGSNAIPImagery/ImageServer/exportImage', {
         'bbox': f'{cx - half},{cy - half},{cx + half},{cy + half}', 'bboxSR': EPSG, 'imageSR': EPSG,
         'size': f'{ORTHO_PX},{ORTHO_PX}', 'format': 'jpg', 'f': 'image',
     })
-    Image.open(io.BytesIO(img)).convert('RGB').save(OUT / 'ortho.jpg', quality=84, optimize=True, progressive=True)
+    photo = Image.open(io.BytesIO(img)).convert('RGB')
+    photo.resize((ORTHO_OUT_PX,) * 2, Image.LANCZOS).save(OUT / 'ortho.webp', quality=62, method=6)
+    photo.resize((PREVIEW_PX,) * 2, Image.LANCZOS).save(OUT / 'ortho-preview.webp', quality=60, method=6)
 
     lon_min, lat_min, lon_max, lat_max = -121.2, 44.33, -121.08, 44.41
     nhd = json.loads(fetch('https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6/query', {

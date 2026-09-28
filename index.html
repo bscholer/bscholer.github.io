@@ -11,6 +11,9 @@
   <meta name="theme-color" content="#efe8d8" media="(prefers-color-scheme: light)">
   <meta name="theme-color" content="#0c0f14" media="(prefers-color-scheme: dark)">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/terrain/meta.json" as="fetch" crossorigin>
+  <link rel="preload" href="/terrain/smith-rock.bin" as="fetch" crossorigin fetchpriority="high">
+  <link rel="preload" href="/terrain/ortho-preview.webp" as="image">
   <script>
     try {
       const saved = localStorage.getItem('theme');
@@ -99,13 +102,70 @@
           I also rebuilt its measurement system: lengths, areas, volumes, and cut/fill,
           computed over triangulated surfaces. Try it on the map above: shift-click two points.
         </p>
-        <p>
-          Before that I built GIS and traffic-data tools for state DOTs at
-          <a href="https://www.hntb.com/">HNTB</a> and Purdue's
-          <a href="https://engineering.purdue.edu/JTRP">Joint Transportation Research Program</a>.
-          Purdue CIT, class of 2020. FAA Part 107 pilot.
-        </p>
       </div>
+    </section>
+
+    <section class="sheet" id="experience">
+      <h2 class="sheet__label">Experience</h2>
+      <ol class="timeline">
+        <li>
+          <span class="timeline__when">2024 – now</span>
+          <div>
+            <h3>Senior Geospatial Software Engineer · <a href="https://www.dronedeploy.com/">DroneDeploy</a>, now Procore</h3>
+            <p>Processing pipeline, map tiles, measurements, and the web app on top of them.</p>
+          </div>
+        </li>
+        <li>
+          <span class="timeline__when">2022 – 2024</span>
+          <div>
+            <h3>Software Engineer II · <a href="https://www.hntb.com/">HNTB</a></h3>
+            <p>GIS, ETL, and AWS tools for state DOTs. Angular and Vue front ends.</p>
+          </div>
+        </li>
+        <li>
+          <span class="timeline__when">2021 – 2022</span>
+          <div>
+            <h3>Software Engineer · <a href="https://engineering.purdue.edu/JTRP">Purdue JTRP</a></h3>
+            <p>Connected-vehicle data at scale on GCP. Brought in CI/CD and containers.</p>
+          </div>
+        </li>
+        <li>
+          <span class="timeline__when">2019 – 2020</span>
+          <div>
+            <h3>Full-stack and hardware intern · Purdue Engineering Computer Network</h3>
+            <p>An internal deploy app and Slack bots for the help desk.</p>
+          </div>
+        </li>
+        <li>
+          <span class="timeline__when">2017 – 2018</span>
+          <div>
+            <h3>Development intern · Nucor Buildings Group, Purdue ABE</h3>
+            <p>An org chart database, and the Indiana Water Monitoring Inventory site.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
+
+    <section class="sheet" id="toolbox">
+      <h2 class="sheet__label">Toolbox</h2>
+      <dl class="toolbox">
+        <div>
+          <dt>Geospatial</dt>
+          <dd>PROJ, GDAL, datums and geoids, rasters and tiling, lidar, QGIS</dd>
+        </div>
+        <div>
+          <dt>Backend</dt>
+          <dd>Python, Node.js, Pub/Sub, PostgreSQL, REST APIs</dd>
+        </div>
+        <div>
+          <dt>Frontend</dt>
+          <dd>TypeScript, Angular, React, three.js and WebGL</dd>
+        </div>
+        <div>
+          <dt>Infra</dt>
+          <dd>Docker, Kubernetes, Terraform, Argo CD, AWS, GCP</dd>
+        </div>
+      </dl>
     </section>
 
     <section class="sheet" id="projects">
@@ -144,6 +204,18 @@
       </ol>
       <p class="sheet__note">
         This site runs on a k3s cluster in my homelab.
+      </p>
+    </section>
+
+    <section class="sheet" id="credentials">
+      <h2 class="sheet__label">Credentials</h2>
+      <ul class="credentials">
+        <li><strong>Purdue University</strong><span>BS, Computer and Information Technology. Professional Writing minor. 2020.</span></li>
+        <li><strong>AWS Certified Developer</strong><span>Associate</span></li>
+        <li><strong>FAA Part 107</strong><span>Remote pilot certificate</span></li>
+      </ul>
+      <p class="sheet__note">
+        Off the clock I fly FPV, shoot the night sky, and run too many services on a homelab.
       </p>
     </section>
 

@@ -86,10 +86,16 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     }
   }
 
-  const ortho = new THREE.TextureLoader().load('/terrain/ortho.jpg', () => schedule());
-  ortho.colorSpace = THREE.SRGBColorSpace;
-  ortho.flipY = false;
-  ortho.anisotropy = renderer.capabilities.getMaxAnisotropy();
+  // A small preview first, then the full image once the map is on screen.
+  const loader = new THREE.TextureLoader();
+  function orthoTexture(url, onLoad) {
+    const tex = loader.load(url, onLoad);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.flipY = false;
+    tex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+    return tex;
+  }
+  const ortho = orthoTexture('/terrain/ortho-preview.webp', () => schedule());
 
   const sunDir = new THREE.Vector3(0, 1, 0);
   const uniforms = {
@@ -600,6 +606,15 @@ export async function createScene(canvas, { reducedMotion, labelLayer, onCursor,
     if (!reducedMotion || cameraMoving) schedule();
   }
   schedule();
+  const loadFullOrtho = () => {
+    const full = orthoTexture('/terrain/ortho.webp', () => {
+      uniforms.uOrtho.value = full;
+      ortho.dispose();
+      schedule();
+    });
+  };
+  if ('requestIdleCallback' in window) requestIdleCallback(loadFullOrtho, { timeout: 1500 });
+  else setTimeout(loadFullOrtho, 300);
 
   return {
     start() {

@@ -4,22 +4,40 @@ import * as THREE from 'three';
 export const SIZE = 320;
 export const EXAGGERATION = 1.3;
 
+// Inverse of encode_heights in scripts/build-terrain.py.
+function decodeHeights(bytes, n, minElev) {
+  const count = n * n;
+  const dm = new Int32Array(count);
+  for (let j = 0; j < n; j++) {
+    for (let i = 0; i < n; i++) {
+      const k = j * n + i;
+      const z = bytes[k] | (bytes[count + k] << 8);
+      const r = (z >>> 1) ^ -(z & 1);
+      let pred = 0;
+      if (j === 0) pred = i > 0 ? dm[k - 1] : 0;
+      else if (i === 0) pred = dm[k - n];
+      else pred = dm[k - 1] + dm[k - n] - dm[k - n - 1];
+      dm[k] = r + pred;
+    }
+  }
+  // Height above the lowest point, in metres. Row 0 is the north edge.
+  const heights = new Float32Array(count);
+  for (let k = 0; k < count; k++) heights[k] = dm[k] / 10 - minElev;
+  return heights;
+}
+
 export async function loadTerrain(base = '/terrain') {
   const [meta, buffer] = await Promise.all([
     fetch(`${base}/meta.json`).then((r) => r.json()),
-    fetch(`${base}/smith-rock.u16`).then((r) => {
+    fetch(`${base}/smith-rock.bin`).then((r) => {
       if (!r.ok) throw new Error(`terrain fetch ${r.status}`);
       return r.arrayBuffer();
     }),
   ]);
   const n = meta.grid;
-  const raw = new Uint16Array(buffer);
   const metersPerUnit = meta.extent / SIZE;
   const elevToWorld = EXAGGERATION / metersPerUnit;
-
-  // Height above the lowest point, in metres. Row 0 is the north edge.
-  const heights = new Float32Array(n * n);
-  for (let i = 0; i < raw.length; i++) heights[i] = raw[i] / 10 - meta.minElev;
+  const heights = decodeHeights(new Uint8Array(buffer), n, meta.minElev);
 
   const cell = SIZE / (n - 1);
   function heightMeters(x, z) {
