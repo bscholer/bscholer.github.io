@@ -4,5 +4,3 @@ node_modules
 dist
 *.md
 Dockerfile
-public/google.html
-public/wifi

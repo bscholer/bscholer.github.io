@@ -31,8 +31,6 @@ jobs:
           check /halloween-handouts/ 200
           check /signal-retime/ 200
           check /personal/ 301
-          check /google.html 404
-          check /wifi/ 404
           check /no-such-page 404
           curl -fs localhost:8080/ | grep -q 'src="/assets/main-'
           curl -s localhost:8080/no-such-page | grep -q 'Off the map'
@@ -70,6 +68,39 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # bscholer.github.io only redirects to benscholer.com, keeping the path.
+  pages:
+    needs: smoke
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Write redirect pages
+        run: |
+          mkdir -p _site
+          cat > _site/index.html <<'EOF'
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <title>Moved to benscholer.com</title>
+            <link rel="canonical" href="https://benscholer.com/">
+            <meta http-equiv="refresh" content="0; url=https://benscholer.com/">
+            <script>location.replace('https://benscholer.com' + location.pathname + location.search + location.hash);</script>
+          </head>
+          <body><a href="https://benscholer.com/">benscholer.com</a></body>
+          </html>
+          EOF
+          cp _site/index.html _site/404.html
+      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/deploy-pages@v4
+        id: deploy
 
   release:
     needs: docker
